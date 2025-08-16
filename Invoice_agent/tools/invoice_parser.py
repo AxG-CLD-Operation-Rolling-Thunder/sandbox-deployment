@@ -208,10 +208,8 @@ class InvoiceParser:
             
             cleaned_text = cleaned_text.strip()
             
-            # Parse JSON
             data = json.loads(cleaned_text)
             
-            # Validate with Pydantic
             invoice_data = InvoiceData(**data)
             
             return invoice_data
