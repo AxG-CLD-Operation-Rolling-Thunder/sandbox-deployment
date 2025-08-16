@@ -29,17 +29,14 @@ class RequestHandler:
         if data is None:
             data = {}
             
-        # Store tool context in session for OAuth
         if tool_context:
             self.session.set_tool_context(tool_context)
             
         try:
-            # Log environment info
             environment = "local" if is_local_environment() else "cloud"
             logger.info(f"Processing request type: {request_type} in {environment} environment")
             logger.debug(f"Data keys: {list(data.keys())}")
             
-            # Route to appropriate service
             handlers = {
                 "process_invoice": self.invoice_service.process,
                 "generate_summary": self.summary_service.generate,
