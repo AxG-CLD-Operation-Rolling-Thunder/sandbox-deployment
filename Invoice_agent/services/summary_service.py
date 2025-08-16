@@ -70,16 +70,27 @@ class SummaryService:
             invoices_json=invoices_json,
             current_date=datetime.now().strftime('%Y-%m-%d')
         )
-        
+    
+        logger.info(f"Generating summary for {len(self.session.invoices)} invoices")
+    
         response = self.model.generate_content(
             prompt,
             generation_config={
-                "temperature": 0.3,
-                "max_output_tokens": 2048
-            }
-        )
-        
-        return response.text
+            "temperature": 0.7,
+            "top_p": 0.95,
+            "top_k": 40,
+            "max_output_tokens": 2048
+        }
+    )      
+    
+        try:
+            if response and response.text:
+                return response.text
+        except Exception as e:
+            logger.warning(f"Could not access response.text: {e}")
+    
+        logger.warning("Using fallback summary due to invalid response")
+        return self._generate_simple_summary()
         
     def _calculate_totals(self) -> dict:
         """Calculate totals by currency"""
@@ -102,3 +113,73 @@ class SummaryService:
             "by_currency": totals_by_currency,
             "tax_by_currency": tax_by_currency
         }
+    def _generate_simple_summary(self) -> str:
+        """Generate a simple summary without using Gemini - formatted like the expected output"""
+        lines = []
+    
+        # Title
+        lines.append(f"EXPENSE SUMMARY")
+        lines.append("")
+    
+        # Create the main table
+        lines.append("| Vendor_name | Invoice_date | Total_amount | Tax_amount | Currency | LineItems |")
+        lines.append("|-------------|--------------|--------------|------------|----------|-----------|")
+    
+        totals_by_currency = {}
+        tax_by_currency = {}
+    
+        # Process each invoice
+        for invoice in self.session.invoices:
+            vendor = invoice.get('vendor_name', 'Unknown')
+            date = invoice.get('invoice_date', 'N/A')
+            amount = float(invoice.get('total_amount', 0))
+            tax = float(invoice.get('tax_amount', 0))
+            currency = invoice.get('currency', 'USD')
+        
+            # Track totals
+            if currency not in totals_by_currency:
+                totals_by_currency[currency] = 0
+                tax_by_currency[currency] = 0
+            totals_by_currency[currency] += amount
+            tax_by_currency[currency] += tax
+        
+            # Get line items summary
+            line_items_desc = "General expense"
+            if invoice.get('line_items'):
+                items = invoice.get('line_items', [])
+                if items:
+                    descriptions = []
+                    for item in items[:3]:  # First 3 items
+                        desc = item.get('description', '')
+                        if desc:
+                            descriptions.append(desc)
+                    if descriptions:
+                        line_items_desc = ", ".join(descriptions)
+                        if len(items) > 3:
+                            line_items_desc += f" (and {len(items) - 3} more)"
+        
+            # Format amounts to 2 decimal places
+            amount_str = f"{amount:.2f}"
+            tax_str = f"{tax:.2f}"
+        
+            # Add table row
+            lines.append(f"| {vendor} | {date} | {amount_str} | {tax_str} | {currency} | {line_items_desc} |")
+    
+        lines.append("")
+        lines.append("")
+    
+        # Add totals section
+        lines.append("**TOTALS BY CURRENCY:**")
+        lines.append("")
+    
+        for currency in sorted(totals_by_currency.keys()):
+            total = totals_by_currency[currency]
+            tax_total = tax_by_currency[currency]
+        
+            lines.append(f"**{currency}:**")
+            lines.append(f"- Total Amount (including tax): {total:.2f}")
+            lines.append(f"- Total Tax: {tax_total:.2f}")
+            lines.append("")
+    
+        # Join all lines
+        return "\n".join(lines)
