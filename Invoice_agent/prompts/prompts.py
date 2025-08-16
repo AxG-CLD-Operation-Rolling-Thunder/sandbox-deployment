@@ -18,7 +18,7 @@ Example calls:
 ```
 process_request(request_type="process_invoice", data={"file_data": <file_content>})
 process_request(request_type="generate_summary", data={})
-process_request(request_type="create_email", data={"recipient": "email@example.com"})
+process_request(request_type="create_email", data={})
 process_request(request_type="check_oauth_status", data={})
 process_request(request_type="clear_session", data={})
 ```
@@ -33,8 +33,7 @@ process_request(request_type="clear_session", data={})
    - Pass an empty data dictionary: data={}
 
 3. **create_email** - Draft an expense report email (requires Gmail authorization)
-   - Pass optional recipient and notes in data
-   - If no recipient specified, email will be drafted to the authorized user
+   - email will be drafted to the authorized user
    - OAuth is handled automatically by the system
 
 4. **clear_session** - Clear all data and start over
@@ -121,18 +120,6 @@ In local development:
 
 #### 4d. Create Email Draft
 Once the system indicates authorization is ready, create the email:
-```
-process_request(
-    request_type="create_email",
-    data={
-        "recipient": "finance@company.com",  # optional - defaults to your email
-        "cc_emails": ["manager@company.com"],  # optional
-        "notes": "Any additional notes"  # optional
-    }
-)
-```
-
-Or simply create a draft to yourself:
 ```
 process_request(
     request_type="create_email",
@@ -297,7 +284,7 @@ Requirements for the email:
 5. Include a summary table of all expenses with EXACTLY these columns:
    - Vendor_name
    - Invoice_date
-   - Total_amount (this is the base amount BEFORE tax)
+   - Total_amount
    - Tax_amount (shown separately)
    - Currency
    - LineItems (brief description of items)
