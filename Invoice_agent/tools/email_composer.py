@@ -233,38 +233,16 @@ Best regards"""
         logger.debug(f"Full prompt: {prompt[:500]}...")  # First 500 chars
     
         try:
-            # # Add safety settings
-            # safety_settings = [
-            #     {
-            #     "category": "HARM_CATEGORY_HARASSMENT",
-            #     "threshold": "BLOCK_NONE"
-            #     },
-            #     {
-            #     "category": "HARM_CATEGORY_HATE_SPEECH",
-            #     "threshold": "BLOCK_NONE"
-            # },
-            # {
-            #     "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-            #     "threshold": "BLOCK_NONE"
-            # },
-            # {
-            #     "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-            #     "threshold": "BLOCK_NONE"
-            # }
-            # ]
-        
             response = self.model.generate_content(
             prompt,
             generation_config={
-                "temperature": 0.7,  # Slightly higher
-                "top_p": 0.95,       # More diverse
-                "top_k": 40,        # Add top_k
-                "max_output_tokens": 2048  # Increase limit
+                "temperature": 0.7, 
+                "top_p": 0.95,      
+                "top_k": 40,        
+                "max_output_tokens": 2048
             },
-            # safety_settings=safety_settings
             )
         
-            # Check if response was blocked
             if response.prompt_feedback:
                 logger.warning(f"Prompt feedback: {response.prompt_feedback}")
         
