@@ -3,7 +3,6 @@ Invoice AI Agent - Entry point for the ADK agent
 """
 import os
 from typing import Dict, Any, Optional
-
 from google.adk.agents import Agent
 from google.adk.tools import ToolContext
 from .controllers.request_handler import RequestHandler
@@ -12,7 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Initialize the request handler
+# Create a single global instance that persists
 request_handler = RequestHandler()
 
 def process_request(
@@ -24,6 +23,7 @@ def process_request(
     Route requests to the appropriate handler.
     This is the only tool exposed to the agent.
     """
+    # Use the global instance
     return request_handler.handle(request_type, data, tool_context)
 
 # Create the agent
