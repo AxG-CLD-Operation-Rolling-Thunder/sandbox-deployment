@@ -7,6 +7,7 @@ import logging
 from typing import Dict, Any
 from ..tools.invoice_parser import parse_invoice
 from ..utils.file_detector import detect_file_type
+from google.adk.tools import ToolContext
 
 logger = logging.getLogger(__name__)
 
@@ -17,14 +18,14 @@ class InvoiceService:
         
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Process an uploaded invoice"""
-        # Validate API key
+        logger.info(f"Processing invoice. Current invoice count: {self.session.get_invoice_count()}")
+
         if not self.api_key:
             return {
                 "status": "error",
                 "message": "API key not configured. Please set GOOGLE_API_KEY environment variable."
             }
             
-        # Extract file data
         file_data = self._extract_file_data(data)
         if not file_data:
             return {
@@ -32,7 +33,6 @@ class InvoiceService:
                 "message": "No file data found. Please upload an invoice file."
             }
             
-        # Process invoice
         file_type = detect_file_type(file_data)
         result = parse_invoice(file_data, file_type, self.api_key)
         
@@ -44,14 +44,17 @@ class InvoiceService:
                 "status": "success",
                 "message": self._format_success_message(invoice_data),
                 "data": invoice_data,
-                "validation": result.get("validation", {})
+                "validation": result.get("validation", {}),
+                "session_info": {
+                    "total_invoices": self.session.get_invoice_count()
+                }
             }
         else:
             return {
                 "status": "error",
                 "message": f"Failed to process invoice: {result.get('error', 'Unknown error')}"
             }
-            
+
     def _extract_file_data(self, data: Dict[str, Any]) -> bytes:
         """Extract file data from various input formats"""
         if isinstance(data, bytes):
@@ -75,3 +78,4 @@ class InvoiceService:
         amount = invoice_data.get('total_amount', 0)
         currency = invoice_data.get('currency', 'USD')
         return f"Invoice processed: {vendor} - {amount} {currency}"
+
