@@ -17,7 +17,7 @@ import google.generativeai as genai
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from Invoice_agent.prompts import prompts
+from Invoice_agent.prompts import email_generation_prompt
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -222,7 +222,7 @@ Best regards"""
         invoice_summary = self._format_invoice_summary(invoice_data)
         logger.info(f"Formatted summary length: {len(invoice_summary)}")
     
-        prompt = prompts.EMAIL_GENERATION_PROMPT.format(
+        prompt = email_generation_prompt.EMAIL_GENERATION_PROMPT.format(
             invoice_summary=invoice_summary,
             additional_context=additional_context if additional_context else "None provided"
         )
