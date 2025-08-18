@@ -184,14 +184,15 @@ The system automatically adapts to the environment:
 
 INVOICE_EXTRACTION_PROMPT = """You are an expense reporting expert. Analyze this invoice and extract the following information.
 
-CRITICAL: Return ONLY valid JSON with proper formatting:
-- Use ONLY double quotes (") for strings, NEVER single quotes (')
-- Ensure all property names are in double quotes
-- No trailing commas after the last item in objects or arrays
-- All numeric values must be numbers, not strings
-- Do not include any text before or after the JSON
+CRITICAL JSON FORMATTING RULES:
+1. Return ONLY valid JSON - no text before or after
+2. Use ONLY double quotes (") for ALL strings - NEVER single quotes (')
+3. ALL property names MUST be in double quotes
+4. NO trailing commas after the last item in objects or arrays
+5. Numeric values must be numbers, not strings (use 123.45 not "123.45")
+6. For missing values: use empty string "" for text, 0.0 for numbers, [] for empty arrays
 
-Required JSON structure:
+REQUIRED JSON FORMAT:
 {
     "vendor_name": "Company name here",
     "invoice_date": "YYYY-MM-DD",
@@ -208,47 +209,104 @@ Required JSON structure:
     ]
 }
 
-IMPORTANT RULES:
-1. Use double quotes ONLY - never use single quotes
-2. Numeric values must be numbers (not "123.45" but 123.45)
-3. Dates must be in YYYY-MM-DD format as strings
-4. Currency must be 3-letter code (USD, EUR, GBP, etc.)
-5. If tax is not shown, use 0.0 (not null or "0")
-6. Empty line_items should be [] not null
+COMMON MISTAKES TO AVOID:
+❌ {'vendor_name': 'ABC Corp'}  ← WRONG: single quotes
+✅ {"vendor_name": "ABC Corp"}  ← CORRECT: double quotes
 
-Return ONLY the JSON object, no explanations or markdown."""
+❌ {vendor_name: "ABC Corp"}    ← WRONG: missing quotes on property name
+✅ {"vendor_name": "ABC Corp"}  ← CORRECT: property name in quotes
+
+❌ {"amount": "123.45"}         ← WRONG: number as string
+✅ {"amount": 123.45}          ← CORRECT: number without quotes
+
+❌ {"items": null}              ← WRONG: null for array
+✅ {"items": []}               ← CORRECT: empty array
+
+Return ONLY the JSON object. Do not include any explanation, markdown formatting, or text."""
 
 
 INVOICE_EXTRACTION_PROMPT_DETAILED = """You are an expert in expense reporting and invoice analysis. Carefully analyze this invoice document and extract all relevant information.
 
-Your task is to extract and structure the data into the following JSON format:
+CRITICAL INSTRUCTIONS:
+1. You MUST return ONLY a valid JSON object
+2. Do NOT include ANY text before or after the JSON
+3. Do NOT use markdown formatting (no ```json or ```)
+4. Do NOT add comments or explanations
 
+JSON FORMATTING RULES - FOLLOW EXACTLY:
+✓ Use ONLY double quotes (") for ALL strings - NEVER use single quotes (')
+✓ ALL property names MUST be enclosed in double quotes
+✓ Numbers must be actual numbers, not strings (use 123.45 not "123.45")
+✓ NO trailing commas after the last item in objects or arrays
+✓ Use null for missing values, not undefined or empty
+✓ Ensure all brackets and braces are properly closed
+
+EXACT FORMAT REQUIRED:
 {
-    "vendor_name": "Exact company or vendor name as shown on invoice",
-    "invoice_date": "Date in YYYY-MM-DD format (convert from any format)",
-    "total_amount": numeric_total_including_tax,
-    "tax_amount": numeric_tax_amount_or_0_if_not_shown,
-    "currency": "3-letter ISO currency code",
+    "vendor_name": "string value here",
+    "invoice_date": "YYYY-MM-DD",
+    "total_amount": 0.00,
+    "tax_amount": 0.00,
+    "currency": "XXX",
     "line_items": [
         {
-            "description": "Detailed item/service description",
-            "quantity": numeric_quantity_default_1,
-            "unit_price": numeric_unit_price_if_shown,
-            "total": numeric_line_total
+            "description": "string value",
+            "quantity": 1,
+            "unit_price": 0.00,
+            "total": 0.00
         }
     ]
 }
 
-Additional instructions:
-1. If the document quality is poor, use context clues to infer missing information
-2. For dates, look for various formats (MM/DD/YYYY, DD/MM/YYYY, Month DD, YYYY, etc.)
-3. If currency is not explicitly stated, infer from symbols ($ = USD, € = EUR, £ = GBP)
-4. Include ALL line items, even if they're subtotals or fees
-5. If tax is included in the total but not itemized, try to calculate it
-6. For ambiguous vendor names, use the most prominent business name on the invoice
-7. Ensure all numeric values are actual numbers, not strings
+COMMON ERRORS TO AVOID:
+❌ WRONG: {'vendor_name': 'ABC Corp'}
+✅ RIGHT: {"vendor_name": "ABC Corp"}
 
-Return ONLY the valid JSON object. Do not include any explanations, markdown formatting, or additional text."""
+❌ WRONG: {vendor_name: "ABC Corp"}
+✅ RIGHT: {"vendor_name": "ABC Corp"}
+
+❌ WRONG: {"amount": "123.45"}
+✅ RIGHT: {"amount": 123.45}
+
+❌ WRONG: {"items": [{"desc": "Item 1"},]}
+✅ RIGHT: {"items": [{"desc": "Item 1"}]}
+
+EXTRACTION GUIDELINES:
+1. vendor_name: The exact company or vendor name as shown on invoice
+2. invoice_date: Convert any date format to YYYY-MM-DD (e.g., "Jan 15, 2024" → "2024-01-15")
+3. total_amount: The final total INCLUDING tax (numeric value, not string)
+4. tax_amount: Tax amount if shown, otherwise use 0.0 (numeric value)
+5. currency: 3-letter ISO code (USD, EUR, GBP, etc.) - infer from symbols if needed
+6. line_items: Array of ALL items/services with descriptions and amounts
+
+HANDLING EDGE CASES:
+- If document quality is poor, make reasonable inferences
+- If currency not stated, infer from symbols: $ = USD, € = EUR, £ = GBP
+- If tax is included but not itemized, set tax_amount to 0.0
+- If no line items are visible, use empty array: []
+- For dates, handle formats like: MM/DD/YYYY, DD/MM/YYYY, Month DD YYYY, YYYY-MM-DD
+- If quantity not shown for line items, default to 1
+- If unit price not shown, calculate from total/quantity if possible
+
+REMEMBER: Return ONLY the JSON object. Nothing else. No explanations. No markdown."""
+
+
+INVOICE_EXTRACTION_SIMPLE = """Return a JSON object with these invoice details:
+
+{
+    "vendor_name": "company name from invoice",
+    "invoice_date": "date in YYYY-MM-DD format",
+    "total_amount": total as number,
+    "tax_amount": tax as number or 0,
+    "currency": "3-letter code",
+    "line_items": []
+}
+
+Rules:
+- Use double quotes only
+- Numbers without quotes
+- No text before/after JSON
+- No markdown formatting"""
 
 SUMMARY_GENERATION_PROMPT = """You are a data formatting assistant. Your task is to take raw invoice data and present it in a clear, well-structured table for a report.
 
@@ -297,7 +355,6 @@ Requirements for the email:
 
 IMPORTANT: 
 - Output ONLY the email body text, starting with the greeting
-- In the table, Total_amount column shows base amount WITHOUT tax
 - Currency totals at the bottom MUST include tax (base + tax)
 - DO NOT mention any attachments
 - The table format must match the expense summary exactly
