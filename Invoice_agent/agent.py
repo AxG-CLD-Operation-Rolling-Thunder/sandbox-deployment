@@ -7,7 +7,7 @@ from typing import Dict, Any, Optional
 from google.adk.agents import Agent
 from google.adk.tools import ToolContext
 from .controllers.request_handler import RequestHandler
-from .prompts import prompts
+from .prompts import invoice_agent_instruction
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,6 +33,6 @@ def process_request(
 root_agent = Agent(
     model=os.getenv("GOOGLE_GENAI_MODEL", "gemini-2.5-flash"),
     name='invoice_expense_agent',
-    instruction=prompts.INVOICE_AGENT_INSTRUCTION,
+    instruction=invoice_agent_instruction.INVOICE_AGENT_INSTRUCTION,
     tools=[process_request]
 )
