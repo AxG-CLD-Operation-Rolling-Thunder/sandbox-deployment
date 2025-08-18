@@ -4,6 +4,7 @@ Uses Gemini 2.5 Flash for initial extraction and Gemini 2.5 Pro for complex case
 """
 
 import json
+import re
 import logging
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
@@ -17,6 +18,11 @@ from Invoice_agent.prompts import prompts
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+EXTRACTION_CONFIG = {"temperature": 0.0,
+                "top_p": 0.95,
+                "top_k": 1,
+                "max_output_tokens": 2048,
+                "candidate_count": 1 }
 
 class LineItem(BaseModel):
     """Model for individual line items in an invoice"""
@@ -45,14 +51,13 @@ class InvoiceData(BaseModel):
     def validate_date_format(cls, v):
         """Ensure date is in YYYY-MM-DD format"""
         try:
-            # Try to parse various date formats and standardize
             for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%B %d, %Y']:
                 try:
                     date_obj = datetime.strptime(v, fmt)
                     return date_obj.strftime('%Y-%m-%d')
                 except ValueError:
                     continue
-            return v  # Return as-is if no format matches
+            return v
         except Exception:
             return v
 
@@ -124,7 +129,6 @@ class InvoiceParser:
         """Helper function to create the correct content parts for the Gemini API call."""
         content_parts = [prompt]
 
-        # For known image/document types, always treat as binary
         binary_mime_types = [
         'image/jpeg', 'image/png', 'image/gif', 'image/bmp',
         'application/pdf', 'application/vnd.google-apps.presentation',
@@ -133,7 +137,6 @@ class InvoiceParser:
         ]
     
         if mime_type in binary_mime_types:
-            # Always treat these as binary data
             content_parts.append({
             'mime_type': mime_type,
             'data': file_data
@@ -163,39 +166,97 @@ class InvoiceParser:
         """Extract invoice data using Gemini 2.5 Flash"""
         content_parts = self._get_content_parts(file_data, mime_type, prompts.INVOICE_EXTRACTION_PROMPT)
     
-        response = self.flash_model.generate_content(content_parts)
-        return self._parse_response(response.text)
-
+        try:
+            response = self.flash_model.generate_content(
+            content_parts,
+            generation_config= EXTRACTION_CONFIG
+            )      
+            logger.info(f"Response type: {type(response)}")
+            logger.info(f"Has parts: {bool(response.parts)}")
+            logger.info(f"Parts count: {len(response.parts) if response.parts else 0}")  
+            if not response.parts:
+                raise ValueError("No response parts returned from Flash model")
+            
+            if not hasattr(response, 'text') or not response.text:
+                raise ValueError("No text in response from Flash model")
+            
+            return self._parse_response(response.text)
+        except Exception as e:
+            logger.error(f"Flash extraction error: {str(e)}")
+            raise
     def _extract_with_pro(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """Extract invoice data using Gemini 2.5 Pro for complex cases"""
         content_parts = self._get_content_parts(file_data, mime_type, prompts.INVOICE_EXTRACTION_PROMPT_DETAILED)
-
-        response = self.pro_model.generate_content(
+        safety_settings=[
+                {
+                    "category": "HARM_CATEGORY_HARASSMENT",
+                    "threshold": "BLOCK_ONLY_HIGH"
+                },
+                {
+                    "category": "HARM_CATEGORY_HATE_SPEECH",
+                    "threshold": "BLOCK_ONLY_HIGH"
+                },
+                {
+                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                    "threshold": "BLOCK_ONLY_HIGH"
+                },
+                {
+                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                    "threshold": "BLOCK_ONLY_HIGH"
+                }
+            ]
+        try:
+            response = self.pro_model.generate_content(
             content_parts,
-        generation_config={
-            "temperature": 0.1,
-            "top_p": 0.95,
-            "max_output_tokens": 2048
-        }
-    )
-        return self._parse_response(response.text)
+                   generation_config={
+                "temperature": 0.0,
+                "top_p": 1.0,        
+                "top_k": 1,         
+                "max_output_tokens": 2048,
+                "candidate_count": 1
+            }
+        )
+            safety_settings=safety_settings
+            if not response.parts:
+                if hasattr(response, 'prompt_feedback'):
+                    logger.error(f"Pro model prompt feedback: {response.prompt_feedback}")
+                raise ValueError("No response parts returned from Pro model")
+            
+            response_text = None
+            if hasattr(response, 'text'):
+                response_text = response.text
+            elif response.parts and len(response.parts) > 0:
+                response_text = response.parts[0].text
+            
+            if not response_text:
+                raise ValueError("No text content in Pro model response")
+            
+            return self._parse_response(response_text)
+        
+        except Exception as e:
+            logger.error(f"Pro extraction error: {str(e)}")
+            if hasattr(response, 'candidates') and response.candidates:
+                for i, candidate in enumerate(response.candidates):
+                    logger.error(f"Candidate {i} finish reason: {candidate.finish_reason}")
+                    if hasattr(candidate, 'safety_ratings'):
+                        logger.error(f"Candidate {i} safety ratings: {candidate.safety_ratings}")
+            raise
 
     def is_text_content(self, data: bytes) -> bool:
         """
     Heuristic to check if the bytes represent text content (e.g., from OCR).
     This could be a simple check for a high density of printable characters.
     """
-    # A simple check: if the first few bytes are not common file headers
         common_headers = [b'%PDF', b'\x89PNG', b'\xFF\xD8\xFF']
         if any(data.startswith(header) for header in common_headers):
             return False
-        # If the data starts with plain text, it is likely the preprocessed OCR result
         return True
 
     def _parse_response(self, response_text: str) -> InvoiceData:
         """Parse and validate the JSON response from Gemini"""
         try:
-            # Clean te response text
+            if not response_text:
+                raise ValueError("Empty response from model")
             cleaned_text = response_text.strip()
             
             # Remove potential markdown code blocks
@@ -207,7 +268,12 @@ class InvoiceParser:
                 cleaned_text = cleaned_text[:-3]
             
             cleaned_text = cleaned_text.strip()
+            quote_count = cleaned_text.count('"')
+            if quote_count % 2 != 0:
+                cleaned_text = cleaned_text.rstrip() + '"'
             
+            cleaned_text = re.sub(r',\s*}', '}', cleaned_text)
+            cleaned_text = re.sub(r',\s*]', ']', cleaned_text)
             data = json.loads(cleaned_text)
             
             invoice_data = InvoiceData(**data)
@@ -216,6 +282,7 @@ class InvoiceParser:
             
         except json.JSONDecodeError as e:
             logger.error(f"Failed to parse JSON response: {e}")
+            logger.error(f"Raw response: {response_text[:500]}...")  # Log first 500 chars
             raise ValueError(f"Invalid JSON response from model: {e}")
         except Exception as e:
             logger.error(f"Failed to validate invoice data: {e}")
@@ -239,7 +306,6 @@ class InvoiceParser:
         if invoice_data.total_amount <= 0:
             warnings.append("Total amount is zero or negative")
         
-        # Check if line items sum matches total (within 1% tolerance)
         if invoice_data.line_items:
             line_items_sum = sum(item.total for item in invoice_data.line_items)
             expected_total = line_items_sum + invoice_data.tax_amount
@@ -247,7 +313,6 @@ class InvoiceParser:
             if abs(expected_total - invoice_data.total_amount) > (invoice_data.total_amount * 0.01):
                 warnings.append(f"Line items sum ({expected_total}) doesn't match total amount ({invoice_data.total_amount})")
         
-        # Validate date is not in the future
         try:
             invoice_date = datetime.strptime(invoice_data.invoice_date, '%Y-%m-%d')
             if invoice_date > datetime.now():
@@ -262,7 +327,6 @@ class InvoiceParser:
         }
 
 
-# Convenience function for direct usage
 def parse_invoice(file_data: bytes, file_type: str, api_key: str) -> Dict[str, Any]:
     """
     Parse an invoice file and return structured data
@@ -275,7 +339,6 @@ def parse_invoice(file_data: bytes, file_type: str, api_key: str) -> Dict[str, A
     Returns:
         Dictionary containing the parsed invoice data and validation results
     """
-    # Map file type to mime type
     mime_type_map = {
         "jpeg": "image/jpeg",
         "jpg": "image/jpeg",
