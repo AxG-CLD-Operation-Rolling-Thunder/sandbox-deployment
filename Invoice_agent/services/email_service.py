@@ -16,8 +16,11 @@ class EmailService:
         self.api_key = os.getenv("GOOGLE_API_KEY")
         
     def create_draft(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Create email draft with expense report"""
-        if not self.session.invoices:
+        """Create email draft with expense report from current session"""
+        invoices = self.session.invoices
+        logger.info(f"Creating email draft for {len(invoices)} invoices from current session")
+        
+        if not invoices:
             return {
                 "status": "error",
                 "message": "No invoices to include in email. Please process invoices first."
@@ -30,15 +33,13 @@ class EmailService:
             }
             
         try:
-            # Get OAuth credentials
             credentials = get_credentials_from_context(self.session.tool_context)
             
             if not credentials:
                 return self._handle_missing_credentials()
                 
-            # Create email draft
             result = create_expense_email_draft(
-                invoice_data=self.session.invoices,
+                invoice_data=invoices,
                 credentials=credentials,
                 recipient_email=data.get('recipient'),
                 api_key=self.api_key,
@@ -96,7 +97,8 @@ class EmailService:
             "draft_id": result.get("draft_id"),
             "subject": result.get("subject"),
             "recipient": result.get("recipient", "You"),
-            "environment": environment
+            "environment": environment,
+            "session_info": self.session.get_session_info()
         }
         
     def _format_error_response(self, result: dict) -> dict:
