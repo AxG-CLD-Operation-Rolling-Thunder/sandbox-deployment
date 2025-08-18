@@ -5,27 +5,23 @@ from dotenv import load_dotenv
 
 logger = logging.getLogger(__name__)
 
-# Load .env from project root
 env_path = Path(__file__).resolve().parent.parent.parent / '.env'
 load_dotenv(env_path)
 logger.debug(f"Loading .env from: {env_path}")
 
-# Authorization ID for the invoice agent
 AUTHORIZATION_ID = os.getenv("AUTHORIZATION_NAME", "invoice-expense-auth")
 logger.info(f"Using authorization ID: {AUTHORIZATION_ID}")
 
-# OAuth scopes required for Gmail operations
 SCOPES = [
-    "https://www.googleapis.com/auth/gmail.compose",     # For creating email drafts
-    "https://www.googleapis.com/auth/gmail.readonly",    # For reading user profile
-    "https://www.googleapis.com/auth/gmail.send",        # For sending emails (if needed)
-    "https://mail.google.com/",                          # Full Gmail access
+    "https://www.googleapis.com/auth/gmail.compose",
+    "https://www.googleapis.com/auth/gmail.readonly",
+    "https://www.googleapis.com/auth/gmail.send",
+    "https://mail.google.com/",
 ]
 
-# OAuth configuration
 OAUTH_CONFIG = {
-    "client_id": os.getenv("GOOGLE_OAUTH_CLIENT_ID") or os.getenv("GOOGLE_CLIENT_ID"),
-    "client_secret": os.getenv("GOOGLE_OAUTH_CLIENT_SECRET") or os.getenv("GOOGLE_CLIENT_SECRET"),
+    "client_id": os.getenv("GOOGLE_OAUTH_CLIENT_ID"),
+    "client_secret": os.getenv("GOOGLE_OAUTH_CLIENT_SECRET"),
     "project_id": os.getenv("GOOGLE_CLOUD_PROJECT"),
     "project_number": os.getenv("GOOGLE_PROJECT_NUMBER", ""),
     "location": os.getenv("GOOGLE_CLOUD_LOCATION", "us-central1"),
@@ -36,17 +32,14 @@ def validate_oauth_config():
     """Validate that all required OAuth configuration is present"""
     logger.debug("Validating OAuth configuration")
     
-    # Check for OAuth credentials
     if not OAUTH_CONFIG["client_id"] or not OAUTH_CONFIG["client_secret"]:
         logger.error("Missing OAuth credentials")
         raise ValueError("GOOGLE_OAUTH_CLIENT_ID and GOOGLE_OAUTH_CLIENT_SECRET must be set")
     
-    # Check for project configuration
     if not OAUTH_CONFIG["project_id"]:
         logger.error("Missing project ID")
         raise ValueError("GOOGLE_CLOUD_PROJECT must be set")
     
-    # Log configuration status
     logger.info("OAuth configuration validated successfully")
     logger.debug(f"Client ID: {OAUTH_CONFIG['client_id'][:10]}...")
     logger.debug(f"Project: {OAUTH_CONFIG['project_id']}")
@@ -56,19 +49,15 @@ def validate_oauth_config():
 
 def is_local_environment():
     """Check if running in local environment vs cloud"""
-    # First check if explicitly set to local
     if os.getenv('LOCAL_DEV', '0') == '1':
         return True
     
-    # Check for ADK development mode
     if os.getenv('ADK_DEV_MODE', '').lower() == 'true':
         return True
     
-    # Check if running with 'adk run' (local development)
     if os.getenv('ADK_LOCAL_RUN', '').lower() == 'true':
         return True
     
-    # If none of these cloud indicators are present, assume local
     cloud_indicators = [
         os.getenv('AGENTSPACE_ENV'),
         os.getenv('GAE_APPLICATION'),
@@ -79,7 +68,6 @@ def is_local_environment():
         os.getenv('AS_APP'),  # Agentspace app name
     ]
     
-    # If any cloud indicator is present, it's cloud environment
     return not any(cloud_indicators)
 
 def get_api_key():
