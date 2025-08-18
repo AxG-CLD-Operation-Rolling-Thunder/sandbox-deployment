@@ -13,7 +13,7 @@ import google.generativeai as genai
 
 import io
 import requests
-from Invoice_agent.prompts import prompts
+from Invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -164,7 +164,7 @@ class InvoiceParser:
 
     def _extract_with_flash(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """Extract invoice data using Gemini 2.5 Flash"""
-        content_parts = self._get_content_parts(file_data, mime_type, prompts.INVOICE_EXTRACTION_PROMPT)
+        content_parts = self._get_content_parts(file_data, mime_type, invoice_extraction_promot_with_flash.INVOICE_EXTRACTION_PROMPT)
     
         try:
             response = self.flash_model.generate_content(
@@ -186,7 +186,7 @@ class InvoiceParser:
             raise
     def _extract_with_pro(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """Extract invoice data using Gemini 2.5 Pro for complex cases"""
-        content_parts = self._get_content_parts(file_data, mime_type, prompts.INVOICE_EXTRACTION_PROMPT_DETAILED)
+        content_parts = self._get_content_parts(file_data, mime_type, invoice_extraction_prompt_with_pro.INVOICE_EXTRACTION_PROMPT_DETAILED)
         safety_settings=[
                 {
                     "category": "HARM_CATEGORY_HARASSMENT",
