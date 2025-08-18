@@ -2,6 +2,7 @@
 Invoice AI Agent - Entry point for the ADK agent
 """
 import os
+import logging
 from typing import Dict, Any, Optional
 from google.adk.agents import Agent
 from google.adk.tools import ToolContext
@@ -10,9 +11,7 @@ from .prompts import prompts
 from dotenv import load_dotenv
 
 load_dotenv()
-
-# Create a single global instance that persists
-request_handler = RequestHandler()
+logger = logging.getLogger(__name__)
 
 def process_request(
     request_type: str, 
@@ -21,12 +20,16 @@ def process_request(
 ) -> Dict[str, Any]:
     """
     Route requests to the appropriate handler.
-    This is the only tool exposed to the agent.
+    Creates a new RequestHandler for each request to ensure proper session isolation.
     """
-    # Use the global instance
+    request_handler = RequestHandler()
+    
+    logger.info(f"Processing request: {request_type}")
+    logger.debug(f"Tool context provided: {tool_context is not None}")
+    
     return request_handler.handle(request_type, data, tool_context)
 
-# Create the agent
+
 root_agent = Agent(
     model=os.getenv("GOOGLE_GENAI_MODEL", "gemini-2.5-flash"),
     name='invoice_expense_agent',
