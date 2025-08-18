@@ -6,7 +6,7 @@ import json
 import logging
 from datetime import datetime
 import google.generativeai as genai
-from ..prompts import prompts
+from ..prompts import summary_generation_prompt
 
 from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
@@ -81,7 +81,7 @@ class SummaryService:
         """Generate summary text using Gemini"""
         invoices = self.session.invoices
 
-        prompt = prompts.SUMMARY_GENERATION_PROMPT.format(
+        prompt = summary_generation_prompt.SUMMARY_GENERATION_PROMPT.format(
             invoice_count=len(invoices),
             invoices_json=invoices_json,
             current_date=datetime.now().strftime('%Y-%m-%d')
