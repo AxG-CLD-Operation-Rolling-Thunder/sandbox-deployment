@@ -8,7 +8,16 @@ from datetime import datetime
 import google.generativeai as genai
 from ..prompts import prompts
 
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
+
 logger = logging.getLogger(__name__)
+
+SUMMARY_CONFIG = {
+    "temperature": 0.0,
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_output_tokens": 2048
+}
 
 class SummaryService:
     def __init__(self, session_service):
@@ -19,11 +28,14 @@ class SummaryService:
             self.model = genai.GenerativeModel('gemini-2.5-pro')
             
     def generate(self, data: dict = None) -> dict:
-        """Generate summary of all processed invoices"""
-        if not self.session.invoices:
+        """Generate summary of all processed invoices in current session"""
+        invoices = self.session.invoices
+        logger.info(f"Generating summary for {len(invoices)} invoices from current session")
+        
+        if not invoices:
             return {
                 "status": "error",
-                "message": "No invoices processed yet. Please upload invoice files first."
+                "message": "No invoices processed yet in this session. Please upload invoice files first."
             }
             
         if not self.api_key:
@@ -40,9 +52,10 @@ class SummaryService:
             return {
                 "status": "success",
                 "summary": summary_text,
-                "invoice_count": len(self.session.invoices),
+                "invoice_count": len(invoices),
                 "totals": totals["by_currency"],
-                "total_tax": totals["tax_by_currency"]
+                "total_tax": totals["tax_by_currency"],
+                "session_info": self.session.get_session_info()
             }
             
         except Exception as e:
@@ -51,9 +64,10 @@ class SummaryService:
                 "status": "error",
                 "message": f"Failed to generate summary: {str(e)}"
             }
-            
+
     def _prepare_invoices_json(self) -> str:
         """Prepare invoices data as JSON for the prompt"""
+        invoices = self.session.invoices
         return json.dumps([{
             "vendor_name": inv.get('vendor_name', 'Unknown'),
             "invoice_date": inv.get('invoice_date', 'N/A'),
@@ -61,26 +75,42 @@ class SummaryService:
             "tax_amount": float(inv.get('tax_amount', 0)),
             "currency": inv.get('currency', 'USD'),
             "line_items": inv.get('line_items', [])
-        } for inv in self.session.invoices], indent=2)
+        } for inv in invoices], indent=2)
         
     def _generate_summary_text(self, invoices_json: str) -> str:
         """Generate summary text using Gemini"""
+        invoices = self.session.invoices
+
         prompt = prompts.SUMMARY_GENERATION_PROMPT.format(
-            invoice_count=len(self.session.invoices),
+            invoice_count=len(invoices),
             invoices_json=invoices_json,
             current_date=datetime.now().strftime('%Y-%m-%d')
         )
     
-        logger.info(f"Generating summary for {len(self.session.invoices)} invoices")
-    
+        logger.info(f"Generating summary for {len(invoices)} invoices")
+        safety_settings=[
+            {
+                "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
+                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+            },
+            {
+                "category": HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+            },
+            {
+                "category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+            },
+            {
+                "category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+            }
+        ]
+
         response = self.model.generate_content(
             prompt,
-            generation_config={
-            "temperature": 0.7,
-            "top_p": 0.95,
-            "top_k": 40,
-            "max_output_tokens": 2048
-        }
+            generation_config= SUMMARY_CONFIG,
+            safety_settings=safety_settings
     )      
     
         try:
@@ -113,73 +143,51 @@ class SummaryService:
             "by_currency": totals_by_currency,
             "tax_by_currency": tax_by_currency
         }
+        
     def _generate_simple_summary(self) -> str:
-        """Generate a simple summary without using Gemini - formatted like the expected output"""
+        """Generate a simple summary without using Gemini"""
+        invoices = self.session.invoices
         lines = []
     
-        # Title
         lines.append(f"EXPENSE SUMMARY")
         lines.append("")
-    
-        # Create the main table
         lines.append("| Vendor_name | Invoice_date | Total_amount | Tax_amount | Currency | LineItems |")
         lines.append("|-------------|--------------|--------------|------------|----------|-----------|")
     
         totals_by_currency = {}
         tax_by_currency = {}
     
-        # Process each invoice
-        for invoice in self.session.invoices:
+        for invoice in invoices:
             vendor = invoice.get('vendor_name', 'Unknown')
             date = invoice.get('invoice_date', 'N/A')
             amount = float(invoice.get('total_amount', 0))
             tax = float(invoice.get('tax_amount', 0))
             currency = invoice.get('currency', 'USD')
         
-            # Track totals
             if currency not in totals_by_currency:
                 totals_by_currency[currency] = 0
                 tax_by_currency[currency] = 0
             totals_by_currency[currency] += amount
             tax_by_currency[currency] += tax
         
-            # Get line items summary
             line_items_desc = "General expense"
             if invoice.get('line_items'):
                 items = invoice.get('line_items', [])
                 if items:
-                    descriptions = []
-                    for item in items[:3]:  # First 3 items
-                        desc = item.get('description', '')
-                        if desc:
-                            descriptions.append(desc)
-                    if descriptions:
-                        line_items_desc = ", ".join(descriptions)
-                        if len(items) > 3:
-                            line_items_desc += f" (and {len(items) - 3} more)"
+                    descriptions = [item.get('description', '') for item in items[:3]]
+                    line_items_desc = ", ".join(descriptions)
+                    if len(items) > 3:
+                        line_items_desc += f" (and {len(items) - 3} more)"
         
-            # Format amounts to 2 decimal places
-            amount_str = f"{amount:.2f}"
-            tax_str = f"{tax:.2f}"
-        
-            # Add table row
-            lines.append(f"| {vendor} | {date} | {amount_str} | {tax_str} | {currency} | {line_items_desc} |")
+            lines.append(f"| {vendor} | {date} | {amount:.2f} | {tax:.2f} | {currency} | {line_items_desc} |")
     
         lines.append("")
-        lines.append("")
-    
-        # Add totals section
         lines.append("**TOTALS BY CURRENCY:**")
-        lines.append("")
     
-        for currency in sorted(totals_by_currency.keys()):
-            total = totals_by_currency[currency]
+        for currency, total in totals_by_currency.items():
             tax_total = tax_by_currency[currency]
-        
-            lines.append(f"**{currency}:**")
+            lines.append(f"\n**{currency}:**")
             lines.append(f"- Total Amount (including tax): {total:.2f}")
             lines.append(f"- Total Tax: {tax_total:.2f}")
-            lines.append("")
     
-        # Join all lines
         return "\n".join(lines)
