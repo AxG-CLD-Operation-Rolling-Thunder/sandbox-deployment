@@ -1,7 +1,6 @@
 """
 Email Drafting Tool for composing and creating Gmail drafts
 Uses Gemini 2.5 Pro for professional email composition
-Modified to support credentials object instead of just access token
 """
 
 import os
@@ -12,6 +11,7 @@ from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 import google.generativeai as genai
 from google.oauth2.credentials import Credentials
@@ -19,10 +19,15 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 from Invoice_agent.prompts import prompts
 
-
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+EMAIL_CONFIG = {
+    "temperature": 0.5,
+    "top_p": 0.9,
+    "top_k": 40,
+    "max_output_tokens": 2048
+}
 
 class EmailComposer:
     """Main class for composing expense report emails and creating Gmail drafts"""
@@ -59,7 +64,6 @@ class EmailComposer:
             totals_by_currency[currency] += amount
             tax_totals_by_currency[currency] += tax
     
-        # Create expense table with consistent column names
         expense_lines = []
         expense_lines.append("EXPENSE SUMMARY")
         expense_lines.append("=" * 100)
@@ -69,7 +73,6 @@ class EmailComposer:
         )
         expense_lines.append("-" * 100)
     
-        # Table rows - keep Total_amount as base amount (no change here)
         for invoice in invoice_data:
             vendor = invoice.get('vendor_name', 'Unknown')[:25]
             date = invoice.get('invoice_date', 'N/A')
@@ -77,7 +80,6 @@ class EmailComposer:
             tax = invoice.get('tax_amount', 0)
             currency = invoice.get('currency', 'USD')
         
-            # Get line items description
             line_items_desc = "General expense"
             if invoice.get('line_items'):
                 items = [item.get('description', '') for item in invoice['line_items'][:2]]
@@ -92,7 +94,6 @@ class EmailComposer:
     
         expense_lines.append("-" * 100)
     
-        # Add totals - NOW including tax
         for currency in totals_by_currency:
             base_total = totals_by_currency[currency]
             tax_total = tax_totals_by_currency[currency]
@@ -105,7 +106,6 @@ class EmailComposer:
     
         expense_table = "\n".join(expense_lines)
     
-        # Build email body
         email_body = f"""Dear [Recipient's name],
 
 I am submitting my expense report for reimbursement. Please find the details below:
@@ -221,33 +221,43 @@ Best regards"""
     
         invoice_summary = self._format_invoice_summary(invoice_data)
         logger.info(f"Formatted summary length: {len(invoice_summary)}")
-        logging.info("invoice_summary_after_formatting", invoice_summary)
     
-        # Log the prompt for debugging
         prompt = prompts.EMAIL_GENERATION_PROMPT.format(
             invoice_summary=invoice_summary,
             additional_context=additional_context if additional_context else "None provided"
         )
-        logging.info("additional_context_printed", additional_context)
         logger.info(f"Prompt length: {len(prompt)} characters")
         logger.debug(f"Full prompt: {prompt[:500]}...")  # First 500 chars
-    
+        safety_settings = [
+        {
+            "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
+            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+        },
+        {
+            "category": HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+        },
+        {
+            "category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+        },
+        {
+            "category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
+        }
+        ]
         try:
             response = self.model.generate_content(
             prompt,
-            generation_config={
-                "temperature": 0.7, 
-                "top_p": 0.95,      
-                "top_k": 40,        
-                "max_output_tokens": 2048
-            },
-            )
+            generation_config=EMAIL_CONFIG,
+            safety_settings=safety_settings
+
+                )
         
             if response.prompt_feedback:
                 logger.warning(f"Prompt feedback: {response.prompt_feedback}")
         
             if response.parts:
-
                 return response.text
             else:
                 logger.warning("No parts in response, checking candidates")
@@ -256,7 +266,6 @@ Best regards"""
                         logger.warning(f"Candidate finish reason: {candidate.finish_reason}")
                         logger.warning(f"Candidate safety ratings: {candidate.safety_ratings}")
             
-                # Fallback
                 return self._create_fallback_email_body(invoice_data, additional_context)
                 
         except Exception as e:
@@ -276,12 +285,11 @@ Best regards"""
             tax_amount = float(invoice.get('tax_amount', 0))
             currency = str(invoice.get('currency', 'USD')).strip()
         
-            # Ensure no special characters that might break the prompt
             vendor = vendor.replace('"', "'").replace('\n', ' ')
         
             if currency not in total_by_currency:
                 total_by_currency[currency] = 0
-            total_by_currency[currency] += (amount + tax_amount)  # Include tax in total
+            total_by_currency[currency] += (amount + tax_amount)
         
             items_desc = "General expense"
             if invoice.get('line_items'):
@@ -317,7 +325,6 @@ Best regards"""
         else:
             date_range = datetime.now().strftime('%B %Y')
     
-        # Calculate total including tax
         total_with_tax = sum(
         inv.get('total_amount', 0) + inv.get('tax_amount', 0) 
         for inv in invoice_data
@@ -382,7 +389,7 @@ Best regards"""
 def create_expense_email_draft(
     invoice_data: List[Dict[str, Any]],
     credentials: Union[Credentials, str] = None,
-    access_token: str = None,  # Keep for backward compatibility
+    access_token: str = None,
     recipient_email: str = None,
     api_key: str = None,
     cc_emails: Optional[List[str]] = None,
