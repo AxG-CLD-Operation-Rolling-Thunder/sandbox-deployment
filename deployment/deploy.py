@@ -57,7 +57,7 @@ def create_deployment_config() -> dict:
             "pydantic"
         ],
         "extra_packages": [
-            "../invoice_agent",
+            ".",
         ],
     }
     logger.debug(f"Deployment config created with {len(config['env_vars'])} env vars")
@@ -98,7 +98,7 @@ remote_app = agent_engines.create(
         "pydantic"
     ],
     extra_packages=[
-        "../invoice_agent",
+        ".",
     ],
 )
 
