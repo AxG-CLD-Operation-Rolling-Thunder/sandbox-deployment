@@ -5,7 +5,7 @@ import os
 import base64
 import logging
 from typing import Dict, Any
-from ..tools.invoice_parser import parse_invoice
+from ..workspace_tools.invoice_parser import parse_invoice
 from ..utils.file_detector import detect_file_type
 from google.adk.tools import ToolContext
 
