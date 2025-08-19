@@ -8,12 +8,12 @@ import re
 import logging
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, field_validator, FieldValidationInfo
 import google.generativeai as genai
 
 import io
 import requests
-from Invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
+from  invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -31,10 +31,11 @@ class LineItem(BaseModel):
     unit_price: Optional[float] = None
     total: float
     
-    @validator('total', pre=True)
-    def calculate_total(cls, v, values):
-        if v is None and values.get('quantity') and values.get('unit_price'):
-            return values['quantity'] * values['unit_price']
+    @field_validator('total', mode='before')
+    @classmethod
+    def calculate_total(cls, v, info: FieldValidationInfo):
+        if v is None and 'quantity' in info.data and 'unit_price' in info.data:
+            return info.data['quantity'] * info.data['unit_price']
         return v
 
 
@@ -47,20 +48,19 @@ class InvoiceData(BaseModel):
     currency: str = "USD"
     line_items: List[LineItem] = []
     
-    @validator('invoice_date')
+    @field_validator('invoice_date')
+    @classmethod
     def validate_date_format(cls, v):
         """Ensure date is in YYYY-MM-DD format"""
-        try:
-            for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%B %d, %Y']:
-                try:
-                    date_obj = datetime.strptime(v, fmt)
-                    return date_obj.strftime('%Y-%m-%d')
-                except ValueError:
-                    continue
-            return v
-        except Exception:
-            return v
-
+        for fmt in ['%Y-%m-%d', '%m/%d/%Y', '%d/%m/%Y', '%B %d, %Y']:
+            try:
+                date_obj = datetime.strptime(v, fmt)
+                return date_obj.strftime('%Y-%m-%d')
+            except ValueError:
+                continue
+        # If no format matches, let Pydantic's type validation handle it
+        # or raise a specific error.
+        raise ValueError("Invalid date format. Expected one of YYYY-MM-DD, MM/DD/YYYY, etc.")
 
 class InvoiceParser:
     """Main class for parsing invoices using Gemini models"""
@@ -91,7 +91,6 @@ class InvoiceParser:
             ValueError: If parsing fails after both model attempts
         """
         logger.info(f"Processing invoice with file type: {file_type}")
-        logger.info("file_data_parse", file_data)
         mime_type = self._get_mime_type(file_type)
         
         # First attempt with Gemini 2.5 Flash
@@ -114,6 +113,7 @@ class InvoiceParser:
     
     def _get_mime_type(self, file_type: str) -> str:
         """Get MIME type from file type"""
+        logging.info("file_type_to_map_mime_type", file_type)
         mime_type_map = {
             "jpeg": "image/jpeg",
             "jpg": "image/jpeg",
@@ -170,7 +170,7 @@ class InvoiceParser:
             response = self.flash_model.generate_content(
             content_parts,
             generation_config= EXTRACTION_CONFIG
-            )      
+            )
             logger.info(f"Response type: {type(response)}")
             logger.info(f"Has parts: {bool(response.parts)}")
             logger.info(f"Parts count: {len(response.parts) if response.parts else 0}")  
