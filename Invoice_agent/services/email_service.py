@@ -4,7 +4,7 @@ Email draft creation service
 import os
 import logging
 from typing import Dict, Any
-from ..tools.email_composer import create_expense_email_draft
+from ..workspace_tools.email_composer import create_expense_email_draft
 from ..oauth import get_credentials_from_context
 from ..oauth.config import is_local_environment
 
