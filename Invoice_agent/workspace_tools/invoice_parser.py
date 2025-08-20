@@ -9,20 +9,23 @@ import logging
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 from pydantic import BaseModel, Field, field_validator, FieldValidationInfo
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 import io
 import requests
-from  invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
+from invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-EXTRACTION_CONFIG = {"temperature": 0.0,
-                "top_p": 0.95,
-                "top_k": 1,
-                "max_output_tokens": 2048,
-                "candidate_count": 1 }
+EXTRACTION_CONFIG = types.GenerateContentConfig(
+    temperature=0.0,
+    top_p=0.95,
+    top_k=1,
+    max_output_tokens=2048,
+    candidate_count=1
+)
 
 class LineItem(BaseModel):
     """Model for individual line items in an invoice"""
@@ -58,23 +61,21 @@ class InvoiceData(BaseModel):
                 return date_obj.strftime('%Y-%m-%d')
             except ValueError:
                 continue
-        # If no format matches, let Pydantic's type validation handle it
-        # or raise a specific error.
         raise ValueError("Invalid date format. Expected one of YYYY-MM-DD, MM/DD/YYYY, etc.")
 
 class InvoiceParser:
     """Main class for parsing invoices using Gemini models"""
     
-    def __init__(self, api_key: str):
+    def __init__(self):
         """
-        Initialize the parser with Gemini API configuration
-        
-        Args:
-            api_key: Google AI API key for Gemini
+        Initialize the parser with Gemini API configuration.
+        The client automatically uses Application Default Credentials (ADC).
+        To configure ADC for local development, run:
+        `gcloud auth application-default login`
         """
-        genai.configure(api_key=api_key)
-        self.flash_model = genai.GenerativeModel('gemini-2.5-flash')
-        self.pro_model = genai.GenerativeModel('gemini-2.5-pro')
+        self.client = genai.Client()
+        self.flash_model_name = 'gemini-2.5-flash'
+        self.pro_model_name = 'gemini-2.5-pro'
         
     def parse_invoice(self, file_data: bytes, file_type: str) -> InvoiceData:
         """
@@ -96,7 +97,6 @@ class InvoiceParser:
         # First attempt with Gemini 2.5 Flash
         try:
             result = self._extract_with_flash(file_data, mime_type)
-
             logger.info("Successfully extracted invoice data with Gemini Flash")
             return result
         except Exception as e:
@@ -130,17 +130,17 @@ class InvoiceParser:
         content_parts = [prompt]
 
         binary_mime_types = [
-        'image/jpeg', 'image/png', 'image/gif', 'image/bmp',
-        'application/pdf', 'application/vnd.google-apps.presentation',
-        'application/vnd.google-apps.spreadsheet', 
-        'application/vnd.google-apps.document'
+            'image/jpeg', 'image/png', 'image/gif', 'image/bmp',
+            'application/pdf', 'application/vnd.google-apps.presentation',
+            'application/vnd.google-apps.spreadsheet',  
+            'application/vnd.google-apps.document'
         ]
     
         if mime_type in binary_mime_types:
             content_parts.append({
-            'mime_type': mime_type,
-            'data': file_data
-        })
+                'mime_type': mime_type,
+                'data': file_data
+            })
         elif self.is_text_content(file_data):
             try:
                 # Try to decode as UTF-8
@@ -152,7 +152,7 @@ class InvoiceParser:
                 content_parts.append({
                 'mime_type': mime_type or 'application/octet-stream',
                 'data': file_data
-             })
+            })
         else:
             # Binary data
             content_parts.append({
@@ -167,86 +167,78 @@ class InvoiceParser:
         content_parts = self._get_content_parts(file_data, mime_type, invoice_extraction_promot_with_flash.INVOICE_EXTRACTION_PROMPT)
     
         try:
-            response = self.flash_model.generate_content(
-            content_parts,
-            generation_config= EXTRACTION_CONFIG
+            response = self.client.models.generate_content(
+                model = self.flash_model_name,
+                contents=content_parts,
+                config=EXTRACTION_CONFIG
             )
-            logger.info(f"Response type: {type(response)}")
-            logger.info(f"Has parts: {bool(response.parts)}")
-            logger.info(f"Parts count: {len(response.parts) if response.parts else 0}")  
-            if not response.parts:
-                raise ValueError("No response parts returned from Flash model")
             
-            if not hasattr(response, 'text') or not response.text:
-                raise ValueError("No text in response from Flash model")
+            logger.info(f"Response object: {response}")
+            logger.info(f"Response text: {response.text}")
+            
+            if not response.text:
+                raise ValueError("No text content returned from Flash model")
             
             return self._parse_response(response.text)
         except Exception as e:
             logger.error(f"Flash extraction error: {str(e)}")
             raise
+
     def _extract_with_pro(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """Extract invoice data using Gemini 2.5 Pro for complex cases"""
         content_parts = self._get_content_parts(file_data, mime_type, invoice_extraction_prompt_with_pro.INVOICE_EXTRACTION_PROMPT_DETAILED)
-        safety_settings=[
-                {
-                    "category": "HARM_CATEGORY_HARASSMENT",
-                    "threshold": "BLOCK_ONLY_HIGH"
-                },
-                {
-                    "category": "HARM_CATEGORY_HATE_SPEECH",
-                    "threshold": "BLOCK_ONLY_HIGH"
-                },
-                {
-                    "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                    "threshold": "BLOCK_ONLY_HIGH"
-                },
-                {
-                    "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
-                    "threshold": "BLOCK_ONLY_HIGH"
-                }
-            ]
-        try:
-            response = self.pro_model.generate_content(
-            content_parts,
-                   generation_config={
-                "temperature": 0.0,
-                "top_p": 1.0,        
-                "top_k": 1,         
-                "max_output_tokens": 2048,
-                "candidate_count": 1
-            }
+        
+        pro_safety_settings = [
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            )
+        ]
+
+        pro_config = types.GenerateContentConfig(
+            temperature=0.0,
+            top_p=1.0,
+            top_k=1,
+            max_output_tokens=2048,
+            candidate_count=1,
+            safety_settings=pro_safety_settings
         )
-            safety_settings=safety_settings
-            if not response.parts:
+
+        try:
+            response = self.client.models.generate_content(
+                model = self.pro_model_name,
+                contents=content_parts,
+                config=pro_config
+            )
+            
+            if not response.text:
                 if hasattr(response, 'prompt_feedback'):
                     logger.error(f"Pro model prompt feedback: {response.prompt_feedback}")
-                raise ValueError("No response parts returned from Pro model")
+                raise ValueError("No text content returned from Pro model")
             
-            response_text = None
-            if hasattr(response, 'text'):
-                response_text = response.text
-            elif response.parts and len(response.parts) > 0:
-                response_text = response.parts[0].text
+            return self._parse_response(response.text)
             
-            if not response_text:
-                raise ValueError("No text content in Pro model response")
-            
-            return self._parse_response(response_text)
-        
         except Exception as e:
             logger.error(f"Pro extraction error: {str(e)}")
-            if hasattr(response, 'candidates') and response.candidates:
-                for i, candidate in enumerate(response.candidates):
-                    logger.error(f"Candidate {i} finish reason: {candidate.finish_reason}")
-                    if hasattr(candidate, 'safety_ratings'):
-                        logger.error(f"Candidate {i} safety ratings: {candidate.safety_ratings}")
             raise
 
     def is_text_content(self, data: bytes) -> bool:
         """
-    Heuristic to check if the bytes represent text content (e.g., from OCR).
-    This could be a simple check for a high density of printable characters.
-    """
+        Heuristic to check if the bytes represent text content (e.g., from OCR).
+        This could be a simple check for a high density of printable characters.
+        """
         common_headers = [b'%PDF', b'\x89PNG', b'\xFF\xD8\xFF']
         if any(data.startswith(header) for header in common_headers):
             return False
@@ -327,14 +319,13 @@ class InvoiceParser:
         }
 
 
-def parse_invoice(file_data: bytes, file_type: str, api_key: str) -> Dict[str, Any]:
+def parse_invoice(file_data: bytes, file_type: str) -> Dict[str, Any]:
     """
     Parse an invoice file and return structured data
     
     Args:
         file_data: Raw file content
         file_type: Type of file (jpeg, png, pdf, docs, sheets, slides)
-        api_key: Google AI API key
         
     Returns:
         Dictionary containing the parsed invoice data and validation results
@@ -349,7 +340,7 @@ def parse_invoice(file_data: bytes, file_type: str, api_key: str) -> Dict[str, A
         "docs": "application/vnd.google-apps.document"
     }
     mime_type = mime_type_map.get(file_type.lower(), "image/jpeg")
-    parser = InvoiceParser(api_key)
+    parser = InvoiceParser()  # No API key needed here
     
     try:
         invoice_data = parser.parse_invoice(file_data, mime_type)
