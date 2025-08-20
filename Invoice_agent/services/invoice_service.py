@@ -19,7 +19,7 @@ class InvoiceService:
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Process an uploaded invoice"""
         logger.info(f"Processing invoice. Current invoice count: {self.session.get_invoice_count()}")
-
+        logging.info("file_data_recieved_from_agent", data.get('file_data'))
         if not self.api_key:
             return {
                 "status": "error",
@@ -34,7 +34,8 @@ class InvoiceService:
             }
             
         file_type = detect_file_type(file_data)
-        result = parse_invoice(file_data, file_type, self.api_key)
+        logging.info("file_type_detected_invoice", file_type)
+        result = parse_invoice(file_data, file_type)
         
         if result["success"]:
             invoice_data = result["data"]
@@ -78,4 +79,3 @@ class InvoiceService:
         amount = invoice_data.get('total_amount', 0)
         currency = invoice_data.get('currency', 'USD')
         return f"Invoice processed: {vendor} - {amount} {currency}"
-
