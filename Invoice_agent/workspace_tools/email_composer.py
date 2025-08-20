@@ -11,9 +11,9 @@ from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
@@ -22,32 +22,32 @@ from invoice_agent.prompts import email_generation_prompt
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-EMAIL_CONFIG = {
-    "temperature": 0.5,
-    "top_p": 0.9,
-    "top_k": 40,
-    "max_output_tokens": 2048
-}
+EMAIL_CONFIG = types.GenerateContentConfig(
+    temperature=0.5,
+    top_p=0.9,
+    top_k=40,
+    max_output_tokens=2048
+)
 
 class EmailComposer:
     """Main class for composing expense report emails and creating Gmail drafts"""
     
-    def __init__(self, api_key: str):
+    def __init__(self):
         """
-        Initialize the email composer with Gemini API
-        
-        Args:
-            api_key: Google AI API key for Gemini
+        Initialize the email composer with Gemini API.
+        The client automatically uses Application Default Credentials (ADC)
+        which is the recommended authentication method.
+        To configure ADC for local development, run:
+        `gcloud auth application-default login`
         """
-        self.api_key = api_key
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel('gemini-2.5-pro')
+        self.client = genai.Client()
+        self.model_name = 'gemini-2.5-pro'
         
     def _create_fallback_email_body(
-    self,
-    invoice_data: List[Dict[str, Any]],
-    additional_context: Optional[str] = None
-) -> str:
+        self,
+        invoice_data: List[Dict[str, Any]],
+        additional_context: Optional[str] = None
+    ) -> str:
         """Create a template-based email body as fallback with consistent format"""
         totals_by_currency = {}
         tax_totals_by_currency = {}
@@ -228,39 +228,48 @@ Best regards"""
         )
         logger.info(f"Prompt length: {len(prompt)} characters")
         logger.debug(f"Full prompt: {prompt[:500]}...")  # First 500 chars
+        
         safety_settings = [
-        {
-            "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
-            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-        },
-        {
-            "category": HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-        },
-        {
-            "category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-        },
-        {
-            "category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-            "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-        }
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            )
         ]
-        try:
-            response = self.model.generate_content(
-            prompt,
-            generation_config=EMAIL_CONFIG,
-            safety_settings=safety_settings
 
-                )
+        email_config = types.GenerateContentConfig(
+                temperature=0.5,
+                top_p=0.9,
+                top_k=40,
+                max_output_tokens=2048,
+                safety_settings=safety_settings
+        )
+
+        try:
+            response = self.client.models.generate_content(
+                model=self.model_name,
+                contents=prompt,
+                config=email_config
+            )
         
             if response.prompt_feedback:
                 logger.warning(f"Prompt feedback: {response.prompt_feedback}")
         
-            if response.parts:
+            if response.text:
                 return response.text
             else:
-                logger.warning("No parts in response, checking candidates")
+                logger.warning("No text in response, checking candidates")
                 if response.candidates:
                     for candidate in response.candidates:
                         logger.warning(f"Candidate finish reason: {candidate.finish_reason}")
@@ -326,7 +335,7 @@ Best regards"""
             date_range = datetime.now().strftime('%B %Y')
     
         total_with_tax = sum(
-        inv.get('total_amount', 0) + inv.get('tax_amount', 0) 
+        inv.get('total_amount', 0) + inv.get('tax_amount', 0)  
         for inv in invoice_data
         )
     
@@ -391,7 +400,6 @@ def create_expense_email_draft(
     credentials: Union[Credentials, str] = None,
     access_token: str = None,
     recipient_email: str = None,
-    api_key: str = None,
     cc_emails: Optional[List[str]] = None,
     additional_notes: Optional[str] = None
 ) -> Dict[str, Any]:
@@ -403,7 +411,6 @@ def create_expense_email_draft(
         credentials: OAuth 2.0 Credentials object (preferred)
         access_token: OAuth 2.0 access token string (for backward compatibility)
         recipient_email: Recipient email address
-        api_key: Google AI API key
         cc_emails: Optional CC recipients
         additional_notes: Optional additional context
         
@@ -416,7 +423,7 @@ def create_expense_email_draft(
     if credentials is None:
         raise ValueError("Either credentials or access_token must be provided")
     
-    composer = EmailComposer(api_key)
+    composer = EmailComposer()  # No API key needed here
     
     return composer.create_expense_email_draft(
         invoice_data=invoice_data,
