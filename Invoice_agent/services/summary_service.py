@@ -5,27 +5,26 @@ import os
 import json
 import logging
 from datetime import datetime
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 from ..prompts import summary_generation_prompt
-
-from google.generativeai.types import HarmCategory, HarmBlockThreshold
 
 logger = logging.getLogger(__name__)
 
-SUMMARY_CONFIG = {
-    "temperature": 0.0,
-    "top_p": 0.9,
-    "top_k": 40,
-    "max_output_tokens": 2048
-}
+SUMMARY_CONFIG = types.GenerateContentConfig(
+    temperature=0.0,
+    top_p=0.9,
+    top_k=40,
+    max_output_tokens=2048
+)
 
 class SummaryService:
     def __init__(self, session_service):
         self.session = session_service
         self.api_key = os.getenv("GOOGLE_API_KEY")
         if self.api_key:
-            genai.configure(api_key=self.api_key)
-            self.model = genai.GenerativeModel('gemini-2.5-pro')
+            self.client = genai.Client()
+            self.model_name = 'gemini-2.5-pro'
             
     def generate(self, data: dict = None) -> dict:
         """Generate summary of all processed invoices in current session"""
@@ -88,30 +87,43 @@ class SummaryService:
         )
     
         logger.info(f"Generating summary for {len(invoices)} invoices")
-        safety_settings=[
-            {
-                "category": HarmCategory.HARM_CATEGORY_HARASSMENT,
-                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-            },
-            {
-                "category": HarmCategory.HARM_CATEGORY_HATE_SPEECH,
-                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-            },
-            {
-                "category": HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
-                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-            },
-            {
-                "category": HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
-                "threshold": HarmBlockThreshold.BLOCK_ONLY_HIGH
-            }
+        
+        safety_settings = [
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HARASSMENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_HATE_SPEECH,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_SEXUALLY_EXPLICIT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            ),
+            types.SafetySetting(
+                category=types.HarmCategory.HARM_CATEGORY_DANGEROUS_CONTENT,
+                threshold=types.HarmBlockThreshold.BLOCK_ONLY_HIGH
+            )
         ]
 
-        response = self.model.generate_content(
-            prompt,
-            generation_config= SUMMARY_CONFIG,
-            safety_settings=safety_settings
-    )      
+        # summary_config = types.GenerateContentConfig(
+        #     **SUMMARY_CONFIG.model_dump(),
+        #     safety_settings=safety_settings
+        # )
+
+        summary_config = types.GenerateContentConfig(
+                temperature=0.0,
+                top_p=0.9,
+                top_k=40,
+                max_output_tokens=2048,
+                safety_settings=safety_settings
+        )
+        response = self.client.models.generate_content(
+            model = self.model_name,
+            contents=prompt,
+            config=summary_config,
+        )       
     
         try:
             if response and response.text:
