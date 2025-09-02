@@ -1,3 +1,4 @@
+
 """
 Invoice Processing Tool for extracting structured data from invoice files
 Uses Gemini 2.5 Flash for initial extraction and Gemini 2.5 Pro for complex cases
@@ -8,13 +9,10 @@ import re
 import logging
 from typing import Dict, Any, List, Optional, Union
 from datetime import datetime
-from pydantic import BaseModel, Field, field_validator, FieldValidationInfo
+from pydantic import BaseModel, field_validator, FieldValidationInfo
 from google import genai
 from google.genai import types
-
-import io
-import requests
-from invoice_agent.prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
+from ..prompts import invoice_extraction_promot_with_flash, invoice_extraction_prompt_with_pro
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -77,7 +75,7 @@ class InvoiceParser:
         self.flash_model_name = 'gemini-2.5-flash'
         self.pro_model_name = 'gemini-2.5-pro'
         
-    def parse_invoice(self, file_data: bytes, file_type: str) -> InvoiceData:
+    def parse_invoice(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """
         Parse invoice file and extract structured data
         
@@ -91,9 +89,7 @@ class InvoiceParser:
         Raises:
             ValueError: If parsing fails after both model attempts
         """
-        logger.info(f"Processing invoice with file type: {file_type}")
-        mime_type = self._get_mime_type(file_type)
-        
+
         # First attempt with Gemini 2.5 Flash
         try:
             result = self._extract_with_flash(file_data, mime_type)
@@ -126,46 +122,43 @@ class InvoiceParser:
         return mime_type_map.get(file_type.lower(), "application/octet-stream")
     
     def _get_content_parts(self, file_data: bytes, mime_type: str, prompt: str) -> List[Any]:
-        """Helper function to create the correct content parts for the Gemini API call."""
+        """Create proper content parts for Gemini API call."""
         content_parts = [prompt]
 
-        binary_mime_types = [
+        binary_mime_types = {
             'image/jpeg', 'image/png', 'image/gif', 'image/bmp',
             'application/pdf', 'application/vnd.google-apps.presentation',
             'application/vnd.google-apps.spreadsheet',  
             'application/vnd.google-apps.document'
-        ]
-    
+        }
+
         if mime_type in binary_mime_types:
-            content_parts.append({
-                'mime_type': mime_type,
-                'data': file_data
-            })
+            content_parts.append(types.Part.from_bytes(data=file_data, mime_type=mime_type))
+        
         elif self.is_text_content(file_data):
             try:
-                # Try to decode as UTF-8
                 decoded_text = file_data.decode('utf-8')
                 content_parts.append(decoded_text)
             except UnicodeDecodeError:
-                # If decoding fails, treat as binary
-                logger.warning(f"Failed to decode as UTF-8, treating as binary with mime_type: {mime_type}")
-                content_parts.append({
-                'mime_type': mime_type or 'application/octet-stream',
-                'data': file_data
-            })
+                content_parts.append(types.Part.from_bytes(data=file_data, mime_type=mime_type or 'application/octet-stream'))
+        
         else:
-            # Binary data
-            content_parts.append({
-            'mime_type': mime_type,
-            'data': file_data
-        })
+            content_parts.append(types.Part.from_bytes(data=file_data, mime_type=mime_type))
 
         return content_parts
+
 
     def _extract_with_flash(self, file_data: bytes, mime_type: str) -> InvoiceData:
         """Extract invoice data using Gemini 2.5 Flash"""
         content_parts = self._get_content_parts(file_data, mime_type, invoice_extraction_promot_with_flash.INVOICE_EXTRACTION_PROMPT)
-    
+
+        try:
+            logger.info(type(file_data))
+            logger.info(f"Content parts for Flash extraction: {[type(part) for part in content_parts]}")
+            logger.info(f"MIME type for Flash extraction: {mime_type}")
+        except Exception:
+            logger.error(f"Error occurred while logging Flash extraction details")
+
         try:
             response = self.client.models.generate_content(
                 model = self.flash_model_name,
@@ -319,7 +312,7 @@ class InvoiceParser:
         }
 
 
-def parse_invoice(file_data: bytes, file_type: str) -> Dict[str, Any]:
+def parse_invoice(file_data: bytes, file_type: str, mime_type: str) -> Dict[str, Any]:
     """
     Parse an invoice file and return structured data
     
@@ -339,7 +332,7 @@ def parse_invoice(file_data: bytes, file_type: str) -> Dict[str, Any]:
         "sheets": "application/vnd.google-apps.spreadsheet",
         "docs": "application/vnd.google-apps.document"
     }
-    mime_type = mime_type_map.get(file_type.lower(), "image/jpeg")
+
     parser = InvoiceParser()  # No API key needed here
     
     try:
