@@ -9,7 +9,10 @@ from ..services.summary_service import SummaryService
 from ..services.email_service import EmailService
 from ..services.oauth_service import OAuthService
 from ..services.session_service import SessionService
-from ..oauth.config import is_local_environment
+from invoice_agent.config import LOCAL_DEV, ADK_DEV_MODE, ADK_LOCAL_RUN, AS_APP, GOOGLE_CLOUD_PROJECT
+
+def is_local_environment():
+    return (LOCAL_DEV or ADK_DEV_MODE or ADK_LOCAL_RUN) and not (AS_APP or GOOGLE_CLOUD_PROJECT)
 
 logger = logging.getLogger(__name__)
 
