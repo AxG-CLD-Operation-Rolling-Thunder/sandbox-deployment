@@ -1,9 +1,9 @@
+
 """
 Email Drafting Tool for composing and creating Gmail drafts
 Uses Gemini 2.5 Pro for professional email composition
 """
 
-import os
 import json
 import base64
 import logging
@@ -17,7 +17,7 @@ from google.genai import types
 from google.oauth2.credentials import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from invoice_agent.prompts import email_generation_prompt
+from ..prompts import email_generation_prompt
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
