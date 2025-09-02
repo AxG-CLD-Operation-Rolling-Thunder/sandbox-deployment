@@ -7,7 +7,7 @@ from google.auth.transport.requests import Request as GoogleAuthRequest
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.adk.tools import ToolContext
-from .config import AUTHORIZATION_ID, SCOPES, OAUTH_CONFIG
+from invoice_agent.config import AUTHORIZATION_ID, SCOPES, OAUTH_CONFIG, LOCAL_DEV
 
 logger = logging.getLogger(__name__)
 
@@ -81,7 +81,7 @@ def get_credentials_from_context(tool_context: Optional[ToolContext] = None) -> 
             logger.warning(f"No access token found for {AUTHORIZATION_ID} in tool context")
     
     if not creds:
-        if os.getenv("LOCAL_DEV", "0") == "1" or (not tool_context and os.path.exists(PICKLE_FILE)):
+        if LOCAL_DEV or (not tool_context and os.path.exists(PICKLE_FILE)):
             logger.info("Local environment detected, using local credentials")
             creds = get_local_credentials()
             return creds
