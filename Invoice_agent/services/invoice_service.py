@@ -1,31 +1,23 @@
 """
 Invoice processing service
 """
-import os
 import base64
 import logging
 from typing import Dict, Any
 from ..workspace_tools.invoice_parser import parse_invoice
 from ..utils.file_detector import detect_file_type
-from google.adk.tools import ToolContext
 
 logger = logging.getLogger(__name__)
 
 class InvoiceService:
     def __init__(self, session_service):
         self.session = session_service
-        self.api_key = os.getenv("GOOGLE_API_KEY")
-        
+
     def process(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Process an uploaded invoice"""
         logger.info(f"Processing invoice. Current invoice count: {self.session.get_invoice_count()}")
         logging.info("file_data_recieved_from_agent", data.get('file_data'))
-        if not self.api_key:
-            return {
-                "status": "error",
-                "message": "API key not configured. Please set GOOGLE_API_KEY environment variable."
-            }
-            
+
         file_data = self._extract_file_data(data)
         if not file_data:
             return {
@@ -34,8 +26,7 @@ class InvoiceService:
             }
             
         file_type = detect_file_type(file_data)
-        logging.info("file_type_detected_invoice", file_type)
-        result = parse_invoice(file_data, file_type)
+        result = parse_invoice(file_data, file_type, data.get('mimetype', 'application/pdf'))
         
         if result["success"]:
             invoice_data = result["data"]
