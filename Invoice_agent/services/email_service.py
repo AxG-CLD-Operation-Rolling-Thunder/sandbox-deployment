@@ -1,3 +1,4 @@
+
 """
 Email draft creation service
 """
@@ -6,14 +7,16 @@ import logging
 from typing import Dict, Any
 from ..workspace_tools.email_composer import create_expense_email_draft
 from ..oauth import get_credentials_from_context
-from ..oauth.config import is_local_environment
+from invoice_agent.config import LOCAL_DEV, ADK_DEV_MODE, ADK_LOCAL_RUN, AS_APP, GOOGLE_CLOUD_PROJECT
+
+def is_local_environment():
+    return (LOCAL_DEV or ADK_DEV_MODE or ADK_LOCAL_RUN) and not (AS_APP or GOOGLE_CLOUD_PROJECT)
 
 logger = logging.getLogger(__name__)
 
 class EmailService:
     def __init__(self, session_service):
         self.session = session_service
-        self.api_key = os.getenv("GOOGLE_API_KEY")
         
     def create_draft(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Create email draft with expense report from current session"""
@@ -26,12 +29,6 @@ class EmailService:
                 "message": "No invoices to include in email. Please process invoices first."
             }
             
-        if not self.api_key:
-            return {
-                "status": "error",
-                "message": "API key not configured."
-            }
-            
         try:
             credentials = get_credentials_from_context(self.session.tool_context)
             
@@ -42,7 +39,6 @@ class EmailService:
                 invoice_data=invoices,
                 credentials=credentials,
                 recipient_email=data.get('recipient'),
-                api_key=self.api_key,
                 cc_emails=data.get('cc_emails'),
                 additional_notes=data.get('notes')
             )
