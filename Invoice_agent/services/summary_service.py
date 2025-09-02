@@ -1,7 +1,7 @@
+
 """
 Summary generation service
 """
-import os
 import json
 import logging
 from datetime import datetime
@@ -21,11 +21,9 @@ SUMMARY_CONFIG = types.GenerateContentConfig(
 class SummaryService:
     def __init__(self, session_service):
         self.session = session_service
-        self.api_key = os.getenv("GOOGLE_API_KEY")
-        if self.api_key:
-            self.client = genai.Client()
-            self.model_name = 'gemini-2.5-pro'
-            
+        self.client = genai.Client()
+        self.model_name = 'gemini-2.5-pro'
+        
     def generate(self, data: dict = None) -> dict:
         """Generate summary of all processed invoices in current session"""
         invoices = self.session.invoices
@@ -35,12 +33,6 @@ class SummaryService:
             return {
                 "status": "error",
                 "message": "No invoices processed yet in this session. Please upload invoice files first."
-            }
-            
-        if not self.api_key:
-            return {
-                "status": "error",
-                "message": "API key not configured."
             }
             
         try:
