@@ -10,5 +10,5 @@ defaults:
     agent_space_description: Example Agent Description Here
     agent_space_tool_description: Example Tool Description Here
   auth:
-    oauth_authorization_id: example_authorization_id
+    oauth_authorization_id: example_authorization_id_001
   environment_variables:
