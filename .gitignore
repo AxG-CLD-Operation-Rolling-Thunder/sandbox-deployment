@@ -1,0 +1,14 @@
+venv
+*.pyc
+__pycache__/
+.DS_Store
+.env
+token.pickle
+.venv
+.env.agent
+.venv_deploy
+__pycache__
+deploy_env
+your_agent_import.py
+logs
+deployments

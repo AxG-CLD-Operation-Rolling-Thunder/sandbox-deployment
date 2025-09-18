@@ -1,0 +1,14 @@
+defaults:
+  scopes:
+    - openid
+    - https://www.googleapis.com/auth/userinfo.email
+    - https://www.googleapis.com/auth/userinfo.profile
+  metadata:
+    reasoning_engine_name: example-engine-name-here
+    reasoning_engine_description: An example reasoning engine description
+    agent_space_name: Example Agent Here
+    agent_space_description: Example Agent Description Here
+    agent_space_tool_description: Example Tool Description Here
+  auth:
+    oauth_authorization_id: example_authorization_id
+  environment_variables:
