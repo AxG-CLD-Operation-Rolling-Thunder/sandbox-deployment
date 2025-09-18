@@ -4,7 +4,7 @@ defaults:
     - https://www.googleapis.com/auth/userinfo.email
     - https://www.googleapis.com/auth/userinfo.profile
   metadata:
-    reasoning_engine_name: example-engine-name
+    reasoning_engine_name: example-engine-name-here
     reasoning_engine_description: An example reasoning engine description
     agent_space_name: Example Agent Here
     agent_space_description: Example Agent Description Here
