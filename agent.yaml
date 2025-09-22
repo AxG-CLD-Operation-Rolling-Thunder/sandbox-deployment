@@ -1,0 +1,12 @@
+defaults:
+  scopes:
+    - https://www.googleapis.com/auth/cloud-platform
+  metadata:
+    reasoning_engine_name: grad_agent
+    reasoning_engine_description: A reasoning engine for Grad Agent
+    agent_space_name: Grad Agent
+    agent_space_description: Helps Googlers through Google's performance and development process.
+    agent_space_tool_description: Use this tool to ...
+  auth: {}
+  environment_variables:
+    RAG_CORPUS: "projects/gcbp-agentspace/locations/us-central1/ragCorpora/137359788634800128"
