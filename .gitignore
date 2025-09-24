@@ -1,6 +1,7 @@
 # Custom folders and files
 scripts/
 .cli_AS.txt
+.cla*
 
 # Environment variables
 .env

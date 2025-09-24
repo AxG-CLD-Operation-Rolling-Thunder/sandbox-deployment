@@ -7,7 +7,7 @@ from google.auth.transport.requests import Request as GoogleAuthRequest
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from google.adk.tools import ToolContext
-from invoice_agent.config import AUTHORIZATION_ID, SCOPES, OAUTH_CONFIG, LOCAL_DEV
+from ..config import AUTHORIZATION_ID, SCOPES, OAUTH_CONFIG, LOCAL_DEV
 
 logger = logging.getLogger(__name__)
 

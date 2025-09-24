@@ -14,19 +14,27 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 
 def process_request(
-    request_type: str, 
-    data: Optional[Dict[str, Any]] = None, 
-    tool_context: Optional[ToolContext] = None
+    request_type: str,
+    data: Optional[Dict[str, Any]] = None,
+    tool_context: Optional[ToolContext] = None,
+    **kwargs
 ) -> Dict[str, Any]:
     """
     Route requests to the appropriate handler.
     Creates a new RequestHandler for each request to ensure proper session isolation.
     """
     request_handler = RequestHandler()
-    
+
     logger.info(f"Processing request: {request_type}")
     logger.debug(f"Tool context provided: {tool_context is not None}")
-    
+    logger.debug(f"Additional kwargs: {kwargs}")
+
+    # Merge kwargs into data if data is provided, otherwise use kwargs as data
+    if data is None:
+        data = kwargs
+    else:
+        data.update(kwargs)
+
     return request_handler.handle(request_type, data, tool_context)
 
 

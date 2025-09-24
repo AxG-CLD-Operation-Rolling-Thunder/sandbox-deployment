@@ -3,7 +3,7 @@ OAuth management service
 """
 import logging
 from ..oauth import get_authenticated_service, get_credentials_from_context
-from invoice_agent.config import LOCAL_DEV, ADK_DEV_MODE, ADK_LOCAL_RUN, AS_APP, GOOGLE_CLOUD_PROJECT
+from ..config import LOCAL_DEV, ADK_DEV_MODE, ADK_LOCAL_RUN, AS_APP, GOOGLE_CLOUD_PROJECT
 
 def is_local_environment():
     return (LOCAL_DEV or ADK_DEV_MODE or ADK_LOCAL_RUN) and not (AS_APP or GOOGLE_CLOUD_PROJECT)

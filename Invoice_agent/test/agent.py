@@ -5,9 +5,9 @@ import logging
 from typing import Dict, Any, Optional
 from google.adk.agents import Agent
 from google.adk.tools import ToolContext
-from .controllers.request_handler import RequestHandler
-from .prompts import invoice_agent_instruction
-from invoice_agent.config import GOOGLE_GENAI_MODEL
+from ..controllers.request_handler import RequestHandler
+from ..prompts import invoice_agent_instruction
+from ..config import GOOGLE_GENAI_MODEL
 
 logger = logging.getLogger(__name__)
 
