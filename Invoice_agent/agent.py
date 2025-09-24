@@ -8,6 +8,7 @@ from google.adk.agents import Agent
 from google.adk.tools import ToolContext
 from .controllers.request_handler import RequestHandler
 from .prompts import invoice_agent_instruction
+from .tools.knowledge_retrieval_tool import invoice_search_tool, retrieve_invoice_knowledge
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -38,9 +39,21 @@ def process_request(
     return request_handler.handle(request_type, data, tool_context)
 
 
+# Prepare tools list with RAG capabilities
+agent_tools = [process_request]
+
+# Add search tool if available
+if invoice_search_tool is not None:
+    agent_tools.append(invoice_search_tool)
+    logger.info("Search tool added to agent")
+else:
+    # Fallback to manual knowledge retrieval tool
+    agent_tools.append(retrieve_invoice_knowledge)
+    logger.info("Manual knowledge retrieval tool added to agent")
+
 root_agent = Agent(
     model=os.getenv("GOOGLE_GENAI_MODEL", "gemini-2.5-flash"),
     name='invoice_expense_agent',
     instruction=invoice_agent_instruction.INVOICE_AGENT_INSTRUCTION,
-    tools=[process_request]
+    tools=agent_tools
 )

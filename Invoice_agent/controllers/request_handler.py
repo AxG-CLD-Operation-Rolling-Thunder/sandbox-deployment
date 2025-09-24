@@ -9,6 +9,7 @@ from ..services.summary_service import SummaryService
 from ..services.email_service import EmailService
 from ..services.oauth_service import OAuthService
 from ..services.session_service import SessionService
+from ..services.rag_service import RagService
 from ..config import LOCAL_DEV, ADK_DEV_MODE, ADK_LOCAL_RUN, AS_APP, GOOGLE_CLOUD_PROJECT
 
 def is_local_environment():
@@ -43,14 +44,20 @@ class RequestHandler:
             summary_service = SummaryService(self.session)
             email_service = EmailService(self.session)
             oauth_service = OAuthService(self.session)
-            
+            rag_service = RagService(self.session)
+
             handlers = {
                 "process_invoice": invoice_service.process,
                 "generate_summary": summary_service.generate,
                 "create_email": email_service.create_draft,
                 "check_oauth_status": oauth_service.check_status,
                 "clear_session": self.session.clear,
-                "get_session_info": lambda d: {"status": "success", **self.session.get_session_info()}
+                "get_session_info": lambda d: {"status": "success", **self.session.get_session_info()},
+                # RAG operations
+                "query_knowledge": rag_service.query_knowledge,
+                "retrieve_context": rag_service.retrieve_context,
+                "get_rag_status": rag_service.get_rag_status,
+                "clear_rag_context": rag_service.clear_rag_context
             }
             
             handler = handlers.get(request_type)

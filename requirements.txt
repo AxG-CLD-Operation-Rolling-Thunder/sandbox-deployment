@@ -3,6 +3,8 @@ google-adk>=1.0.0
 google-cloud-aiplatform[adk,agent-engines]==1.95.0
 google-generativeai>=0.3.0
 
+# Note: vertexai.preview.rag is included in google-cloud-aiplatform[agent-engines] >= 1.95.0
+
 # Google API dependencies
 google-api-python-client>=2.100.0
 google-auth>=2.23.0
