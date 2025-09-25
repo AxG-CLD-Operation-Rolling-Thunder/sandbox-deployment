@@ -21,7 +21,7 @@ google-api-python-client==2.183.0
 google-auth==2.40.3
 google-auth-httplib2==0.2.0
 google-auth-oauthlib==1.2.2
-google-cloud-aiplatform>=1.87.0
+google-cloud-aiplatform==1.95.0
 google-cloud-appengine-logging==1.6.2
 google-cloud-audit-log==0.3.2
 google-cloud-bigquery==3.38.0
@@ -48,10 +48,16 @@ httpx==0.28.1
 httpx-sse==0.4.1
 idna==3.10
 importlib_metadata==8.7.0
+jaraco.classes==3.4.0
+jaraco.context==6.0.1
+jaraco.functools==4.3.0
 jsonschema==4.25.1
 jsonschema-specifications==2025.9.1
+keyring==25.6.0
+keyrings.google-artifactregistry-auth==1.1.2
 lxml==6.0.2
 mcp==1.14.1
+more-itertools==10.8.0
 numpy==2.3.3
 oauthlib==3.3.1
 opentelemetry-api==1.37.0
@@ -60,6 +66,7 @@ opentelemetry-resourcedetector-gcp==1.9.0a0
 opentelemetry-sdk==1.37.0
 opentelemetry-semantic-conventions==0.58b0
 packaging==25.0
+pluggy==1.6.0
 proto-plus==1.26.1
 protobuf==5.29.5
 pyasn1==0.6.1
@@ -75,6 +82,7 @@ python-docx==1.2.0
 python-dotenv==1.1.1
 python-multipart==0.0.20
 PyYAML==6.0.2
+reasoning-deployment-service==0.6.0
 referencing==0.36.2
 requests==2.32.5
 requests-oauthlib==2.0.0
@@ -94,7 +102,7 @@ tzlocal==5.3.1
 uritemplate==4.2.0
 urllib3==2.5.0
 uvicorn==0.37.0
-vertexai
+vertexai==1.43.0
 websockets==15.0.1
 wrapt==1.17.3
 zipp==3.23.0
