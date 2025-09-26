@@ -13,4 +13,4 @@ defaults:
   auth:
     oauth_authorization_id: brand_voice_auth_001
   environment_variables:
-    RAG_CORPUS: "projects/gcbp-agentspace/locations/us-central1/ragCorpora/brand_voice_corpus_id"
+    RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/5359846506524311552"
