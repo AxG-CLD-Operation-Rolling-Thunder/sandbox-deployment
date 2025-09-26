@@ -1,14 +1,15 @@
 defaults:
   scopes:
+    - https://www.googleapis.com/auth/cloud-platform
     - openid
     - https://www.googleapis.com/auth/userinfo.email
     - https://www.googleapis.com/auth/userinfo.profile
   metadata:
-    reasoning_engine_name: example-engine-name
-    reasoning_engine_description: An example reasoning engine description
-    agent_space_name: Example Agent Here
-    agent_space_description: Example Agent Description Here
-    agent_space_tool_description: Example Tool Description Here
+    reasoning_engine_name: ort_brand_voice_agent
+    reasoning_engine_description: A reasoning engine for Google Cloud Brand Voice Agent that helps with content creation and brand voice analysis
+    agent_space_name: Cloud Marketing Brand Voice Agent
+    agent_space_description: An AI-powered writing assistant for Google Cloud marketers and content creators that helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.
+    agent_space_tool_description: Use this tool to analyze existing content for brand voice compliance, generate new blog content drafts, and create compelling headlines for Google Cloud marketing content.
   auth:
-    oauth_authorization_id: example_authorization_id_001
+    oauth_authorization_id: brand_voice_auth_001
   environment_variables:

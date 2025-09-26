@@ -12,3 +12,4 @@ deploy_env
 your_agent_import.py
 logs
 deployments
+.cla*
