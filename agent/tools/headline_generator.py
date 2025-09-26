@@ -1,7 +1,7 @@
 """
 Headline Generator Tool - Creates compelling headlines for Google Cloud content
 """
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from google.adk.tools import ToolContext
 from ..prompts.brand_voice_instructions import HEADLINE_GENERATOR_PROMPT
 
@@ -10,9 +10,9 @@ def generate_headlines(
     topic: str,
     content_summary: str = "",
     target_audience: str = "technical professionals",
-    headline_types: List[str] = None,
-    keywords: List[str] = None,
-    tool_context: ToolContext = None
+    headline_types: Optional[List[str]] = None,
+    keywords: Optional[List[str]] = None,
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Generate multiple compelling headline options for given content.
@@ -157,8 +157,8 @@ Please provide headlines with explanations for why each works.
 def optimize_existing_headline(
     current_headline: str,
     content_context: str = "",
-    target_seo_keywords: List[str] = None,
-    tool_context: ToolContext = None
+    target_seo_keywords: Optional[List[str]] = None,
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Analyze and optimize an existing headline for better performance.

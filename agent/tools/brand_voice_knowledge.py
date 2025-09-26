@@ -9,7 +9,7 @@ import os
 def retrieve_brand_voice_guidelines(
     topic_area: str = "general",
     content_type: str = "blog_post",
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Retrieve Google Cloud brand voice guidelines and style information.
@@ -189,7 +189,7 @@ def retrieve_brand_voice_guidelines(
 def check_brand_voice_compliance(
     content: str,
     guidelines: Dict[str, Any] = None,
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Check content against Google Cloud brand voice guidelines.

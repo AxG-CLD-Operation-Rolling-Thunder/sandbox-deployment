@@ -4,7 +4,7 @@ Using VertexAiSearchTool for Google Cloud brand voice knowledge retrieval functi
 """
 import os
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from google.adk.tools import ToolContext, VertexAiSearchTool
 from dotenv import load_dotenv
 
@@ -51,7 +51,7 @@ def retrieve_brand_voice_knowledge(
     query: str,
     content_type: str = "general",
     max_results: int = 5,
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Retrieve knowledge from the brand voice knowledge base using search
@@ -129,7 +129,7 @@ def search_brand_voice_examples(
     content_goal: str,
     audience: str = "technical professionals",
     format_type: str = "blog_post",
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Search for specific examples of Google Cloud content that match the user's goal.

@@ -1,7 +1,7 @@
 """
 Content Reviewer Tool - Analyzes existing content for Google Cloud brand voice compliance
 """
-from typing import Dict, Any
+from typing import Dict, Any, Optional
 from google.adk.tools import ToolContext
 from ..prompts.brand_voice_instructions import CONTENT_REVIEWER_PROMPT
 
@@ -10,7 +10,7 @@ def review_content_for_brand_voice(
     content: str,
     content_type: str = "blog_post",
     target_audience: str = "technical professionals",
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Analyze existing content and provide specific suggestions to improve

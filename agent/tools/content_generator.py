@@ -1,18 +1,18 @@
 """
 Content Generator Tool - Creates new blog content aligned with Google Cloud brand voice
 """
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from google.adk.tools import ToolContext
 from ..prompts.brand_voice_instructions import CONTENT_GENERATOR_PROMPT
 
 
 def generate_blog_content(
     topic: str,
-    key_points: List[str] = None,
+    key_points: Optional[List[str]] = None,
     target_audience: str = "technical professionals",
     content_length: str = "medium",
-    google_cloud_services: List[str] = None,
-    tool_context: ToolContext = None
+    google_cloud_services: Optional[List[str]] = None,
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Generate a new blog post draft from scratch based on user's topic and key points.
@@ -152,7 +152,7 @@ Please generate a complete blog post draft following these specifications.
 def generate_content_outline(
     topic: str,
     target_audience: str = "technical professionals",
-    tool_context: ToolContext = None
+    tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
     Generate a structured outline for a blog post before writing full content.
