@@ -9,4 +9,4 @@ python-dotenv>=1.0.0
 pydantic>=2.10.6
 absl-py>=2.2.1
 PyPDF2>=3.0.1
-reasoning-deployment-service==0.3.8
+reasoning-deployment-service
