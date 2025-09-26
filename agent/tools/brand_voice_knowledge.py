@@ -188,7 +188,7 @@ def retrieve_brand_voice_guidelines(
 
 def check_brand_voice_compliance(
     content: str,
-    guidelines: Dict[str, Any] = None,
+    guidelines: Optional[Dict[str, Any]] = None,
     tool_context: Optional[ToolContext] = None
 ) -> Dict[str, Any]:
     """
