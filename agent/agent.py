@@ -91,5 +91,5 @@ root_agent = LlmAgent(
     model="gemini-2.0-flash-001",
     name="brand_voice_agent",
     description="Google Cloud Brand Voice Agent - An AI-powered writing assistant for Google Cloud marketers and content creators that helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.",
-    instruction="say hello world"  # BRAND_VOICE_AGENT_INSTRUCTION,
+    instruction="say hello world each time"  # BRAND_VOICE_AGENT_INSTRUCTION,
 )
