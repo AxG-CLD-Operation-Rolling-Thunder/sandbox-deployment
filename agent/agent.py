@@ -1,8 +1,8 @@
-from google.adk.agents import LlmAgent
-from .tools.oauth_support import retrieve_user_auth
+import requests
 from google.adk.agents import LlmAgent
 from google.adk.tools import ToolContext
-import requests
+
+from .tools.oauth_support import retrieve_user_auth
 
 
 def get_users_name(tool_context: ToolContext) -> dict:
