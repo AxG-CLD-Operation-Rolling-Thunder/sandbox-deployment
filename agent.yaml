@@ -11,5 +11,6 @@ defaults:
     agent_space_description: An AI-powered writing assistant for Google Cloud marketers and content creators that helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.
     agent_space_tool_description: Use this tool to analyze existing content for brand voice compliance, generate new blog content drafts, and create compelling headlines for Google Cloud marketing content.
   auth:
+    oauth_authorization_id: brand_voice_auth_002
   environment_variables:
     RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/5359846506524311552"
