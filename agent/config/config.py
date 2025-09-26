@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 load_dotenv(dotenv_path=".env.agent")
 
 LOG_IDENTIFIER = "YOUR_AGENT_IDENTIFIER"
-AUTHORIZATION_ID = os.getenv("AUTHORIZATION_ID")
+AUTHORIZATION_ID = os.getenv("AUTHORIZATION_ID", 'brand_voice_auth_001')
 LOCAL_AUTH_CREDS = os.getenv("CLIENT_JSON_PAYLOAD", "{}")
 TEMPLATE_BUCKET = os.getenv("TEMPLATE_BUCKET_PATH")
 LOCAL_AUTH_CREDS_LOADED = json.loads(LOCAL_AUTH_CREDS)
