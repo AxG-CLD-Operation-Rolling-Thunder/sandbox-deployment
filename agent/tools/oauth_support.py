@@ -8,7 +8,6 @@ import pickle
 
 def get_temp_credentials() -> Credentials:
     """Local dev helper for OAuth2 flow."""
-
     if os.path.exists("token.pickle"):
         with open("token.pickle", "rb") as token:
             return pickle.load(token)
