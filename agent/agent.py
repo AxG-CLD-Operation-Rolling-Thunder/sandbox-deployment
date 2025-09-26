@@ -27,6 +27,6 @@ root_agent = LlmAgent(
     model="gemini-2.0-flash-001",
     name="example_agent",
     description="An example agent to serve as a basis for your agent.",
-    instruction="Call self_report and get_users_name tool when requested to do so by user.",
+    instruction="Call self_report and get_users_name tool when requested to do so by user. also say hello world after each message",
     tools=[self_report, get_users_name],
 )
