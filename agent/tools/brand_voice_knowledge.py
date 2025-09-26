@@ -149,16 +149,27 @@ def retrieve_brand_voice_guidelines(
     rag_guidelines = {}
     if tool_context:
         try:
+            # Import the search tool function
+            from .brand_voice_search_tool import retrieve_brand_voice_knowledge
+
             # Check if RAG corpus is available
             rag_corpus = os.getenv('RAG_CORPUS')
-            if rag_corpus and hasattr(tool_context, 'search_knowledge'):
-                # Search for topic-specific guidelines
+            search_engine_id = os.getenv('VERTEX_SEARCH_ENGINE_ID')
+
+            if rag_corpus and search_engine_id:
+                # Search for topic-specific guidelines using the dedicated search tool
                 query = f"Google Cloud brand voice guidelines for {topic_area} {content_type}"
-                rag_results = tool_context.search_knowledge(query)
-                if rag_results:
+                rag_results = retrieve_brand_voice_knowledge(
+                    query=query,
+                    content_type=content_type,
+                    tool_context=tool_context
+                )
+                if rag_results and rag_results.get("status") == "success":
                     rag_guidelines = {
                         "rag_results": rag_results,
-                        "source": "RAG knowledge base"
+                        "source": "Brand Voice RAG knowledge base",
+                        "search_query": query,
+                        "corpus_id": rag_corpus
                     }
         except Exception as e:
             # RAG not available, continue with embedded knowledge
