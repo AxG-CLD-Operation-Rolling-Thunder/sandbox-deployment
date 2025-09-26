@@ -6,7 +6,7 @@ defaults:
     reasoning_engine_description: A reasoning engine for Grad Agent
     agent_space_name: Grad Agent
     agent_space_description: Helps Googlers through Google's performance and development process.
-    agent_space_tool_description: Use this tool to ...
+    agent_space_tool_description: Use this tool to streamline and elevate the performance management process by helping you draft, refine, tag, and update SMART expectations and OKRs that are scoped for significant impact, development, teamwork, and values alignment—resulting in clearer goals, better collaboration, and improved business outcomes.
   auth: {}
   environment_variables:
     RAG_CORPUS: "projects/gcbp-agentspace/locations/us-central1/ragCorpora/137359788634800128"

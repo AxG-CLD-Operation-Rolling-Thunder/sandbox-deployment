@@ -1,5 +1,7 @@
 # Simplified configuration - no feature flags needed!
 # Source note: Simplified from EBC pattern, removing unnecessary complexity
+#TODO: update this file
+
 
 import json
 import os
