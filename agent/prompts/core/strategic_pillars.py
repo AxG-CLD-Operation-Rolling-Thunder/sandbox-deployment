@@ -1,0 +1,8 @@
+STRATEGIC_PILLARS = """
+1. Lift Mindshare", "Focus on differentiators and market developments, tap media & influencers (AR/PR)"
+2. "Source Demand", "Create and capture QSOs & pipeline for all segments via regional demand & partner programs."
+3. "Acquire Revenue", "Generate revenue through Scaled Online and Hybrid  motions. Make GC best-loved for devs."
+4. "Improve Efficiency", "Improve the efficiency of Marketing organization, processes, investments, and marketing programs"
+5. "AI Boost", "AI will boost every pillar of our marketing strategy"
+6. "One Google", "Showcase how working cross-functionally with other teams across Google AI, Developer, Security, AI for Marketing, CXO engagement, Startups, Sustainability, and more"
+"""

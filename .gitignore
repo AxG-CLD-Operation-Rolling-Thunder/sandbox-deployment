@@ -1,0 +1,4 @@
+.env
+pulse_agent_venv/
+client_secerets.json
+token.pickle
