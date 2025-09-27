@@ -45,7 +45,7 @@ def self_report():
     """Report the agent version and capabilities."""
     return {
         "name": "Google Cloud Brand Voice Agent",
-        "version": "1.0.1",
+        "version": "1.0.2",
         "capabilities": [
             "Content review and brand voice analysis",
             "Blog content generation from topics and key points",
