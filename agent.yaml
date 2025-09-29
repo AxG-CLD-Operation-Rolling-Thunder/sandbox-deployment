@@ -1,0 +1,41 @@
+defaults:
+  scopes:
+    - openid
+    - https://www.googleapis.com/auth/userinfo.email
+    - https://www.googleapis.com/auth/userinfo.profile
+  metadata:
+    reasoning_engine_name: example-engine-name
+    reasoning_engine_description: An example reasoning engine description
+    agent_space_name: Example Agent Here
+    agent_space_description: Example Agent Description Here
+    agent_space_tool_description: Example Tool Description Here
+  auth:
+    oauth_authorization_id: example_authorization_id_001
+  environment_variables:
+
+  
+name: call_of_agents
+model: gemini-2.0-flash-001
+description: >
+  MVP Agent for finding agent names similar to input queries using fuzzy matching.
+instruction: >
+  This agent accepts an agent name string and uses fuzzy string matching to identify similar existing agent names. It returns a list of similar agent names and a similarity flag.
+
+owner: ponetterubio
+version: 0.5.0
+tags:
+  - MVP
+  - similarity-search
+  - lightweight
+
+metadata:
+  reasoning_engine_name: call_of_agents_mvp_engine
+  reasoning_engine_description: MVP agent with similarity matching of agent names
+  agent_space_name: Call of Agents MVP Agent
+  agent_space_description: Minimal viable product to find similar agent names
+  agent_space_tool_description: Uses fuzzy matching to list agent names similar to user input
+
+auth:
+  oauth_authorization_id: call_of_agents_mvp_auth_001
+
+environment_variables: []
