@@ -2,3 +2,9 @@
 pulse_agent_venv/
 client_secerets.json
 token.pickle
+deploy_venv/
+agent/prompts/core/__pycache__/
+agent/__pycache__/
+agent/config/__pycache__/
+agent/tools/__pycache__/
+agent/prompts/__pycache__/
