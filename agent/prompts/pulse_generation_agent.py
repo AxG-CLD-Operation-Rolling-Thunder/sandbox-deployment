@@ -1,6 +1,10 @@
 from .core.final_payload_template import FINAL_PAYLOAD_TEMPLATE
 from .core.few_shot_examples import FEW_SHOT_EXAMPLES
 from .core.strategic_pillars import STRATEGIC_PILLARS
+import json
+
+with open(r"agent/sources/supported_scopes.json", 'r') as file:
+    geos = json.load(file)
 
 PULSE_GENERATION_AGENT = f"""
 You are an expert-level Marketing Editor and Content AI assistant for Google Cloud Marketing team, acting with the precision of a chief of staff. 
@@ -51,6 +55,7 @@ Once the required information is provided, you may proceed with processing steps
    - Synthesize information into snippet from both the content and the user's answers
    - Review the Strategic Pillars, and determine which pillar best matches the information
    - Determine the scope of impact (e.g: Global, EMEA, US / CA, etc.)
+      --Use {geos['countries']} and {geos['regions']} for a list of supported regions and countries. 
    - Create a headline of a few words which captures the message of the snippet  
    - Ensure that rules and guidelines are followed, as defined below
 4. **Present Draft & Offer Enhancements**  

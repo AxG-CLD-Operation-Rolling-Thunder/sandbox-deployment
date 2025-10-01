@@ -1,7 +1,7 @@
 from google.adk.agents import LlmAgent
 from .tools.oauth_support import retrieve_user_auth
 from .prompts.pulse_generation_agent import PULSE_GENERATION_AGENT
-# from .tools.file_upload_support import list_artifacts
+from .tools.file_upload_support import list_artifacts
 from google.adk.tools import agent_tool, ToolContext
 import requests 
 
@@ -25,5 +25,5 @@ root_agent = LlmAgent(
     description="I am an AI assistant that helps create weekly updates and on-brand snippets for the Cloud Marketing Pulse newsletter.",
     instruction=PULSE_GENERATION_AGENT,
     sub_agents=[],
-    tools=[get_users_name]
+    tools=[get_users_name,list_artifacts]
 )
