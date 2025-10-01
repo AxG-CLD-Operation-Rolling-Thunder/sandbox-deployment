@@ -12,5 +12,5 @@ Launched Trillium, a new brand for the 6th generation of TPUs and our most perfo
 
 ## **Example 3:**
 SOURCE DEMAND [EMEA / FR]: Hosted the Google Cloud France Summit
-Hosted our biggest France Summit ever with 4,000 guests (133% of target) which featured speakers and 30+ customers on stage. We delivered over 40+ sessions, including the keynote, breakouts, leadership conversations, Gen AI labs, plus extensive press and analyst coverage. The summit facilitated 80+ business meetings, many networking opportunities, and 1,500 attendees during Cloud Night. Partners were also massively involved with 60 sponsors. Lean more: [Mike Sanders](msanders@google.com), [Travis Davis](tdavis@google.com)
+Hosted our biggest France Summit ever with 4,000 guests (33 percent over target) which featured speakers and 30+ customers on stage. We delivered over 40+ sessions, including the keynote, breakouts, leadership conversations, Gen AI labs, plus extensive press and analyst coverage. The summit facilitated 80+ business meetings, many networking opportunities, and 1,500 attendees during Cloud Night. Partners were also massively involved with 60 sponsors. Lean more: [Mike Sanders](msanders@google.com), [Travis Davis](tdavis@google.com)
 """
