@@ -8,7 +8,7 @@ model = "gemini-2.5-flash"
 root_agent = LlmAgent(
     model = model,
     name="call_of_agents",
-    description="MVP agent that finds agent names similar to input using fuzzy matching.",
+    description="MVP agent that finds agent names similar to input.",
     instruction=prompting,
     tools=[],
 )
