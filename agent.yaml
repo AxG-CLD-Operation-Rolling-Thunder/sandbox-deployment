@@ -9,5 +9,6 @@ defaults:
     agent_space_name: Cloud Marketing Pulse Assistant
     agent_space_description: Helps Googlers write snippets for Pulse Newsletter
     agent_space_tool_description: None
-  auth: {oauth_authorization_id: cloud_marketing_pulse_assistant}
+  auth: 
+    oauth_authorization_id: cloud_marketing_pulse_assistant
   environment_variables:
