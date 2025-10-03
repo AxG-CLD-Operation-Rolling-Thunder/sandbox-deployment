@@ -1,5 +1,5 @@
 """
-Google Cloud Brand Voice Agent - AI-powered writing assistant for Google Cloud content creators
+Plan on a Page Agent - Collaborative assistant for marketers creating campaign planning documents
 """
 import requests
 import logging
@@ -8,20 +8,55 @@ from google.adk.tools import ToolContext
 
 from .tools.oauth_support import retrieve_user_auth
 from .tools import (
-    review_content_for_brand_voice,
-    generate_blog_content,
-    generate_content_outline,
-    generate_headlines,
-    optimize_existing_headline,
-    get_quick_brand_voice_tips,
-    get_headline_best_practices,
-    retrieve_brand_voice_guidelines,
-    check_brand_voice_compliance,
-    get_google_cloud_terminology,
-    brand_voice_search_tool,
-    search_brand_voice_examples
+    # Plan Analysis
+    analyze_plan,
+    quick_completeness_check,
+    get_grl_specific_feedback,
+
+    # Plan Generation
+    generate_new_plan,
+    get_section_prompts,
+    get_plan_template_blank,
+
+    # G/R/L Helper
+    guide_grl_assignment,
+    suggest_adopt_adapt_invent,
+    get_grl_best_practices,
+
+    # Formatting & Validation
+    format_plan_output,
+    validate_plan_completeness,
+
+    # Duplicate Detection
+    search_similar_plans,
+
+    # Template & Knowledge
+    get_template,
+    get_section_guidance,
+    get_grl_framework_guide,
+
+    # File Upload
+    list_artifacts,
+    get_artifact
 )
-from .prompts.brand_voice_instructions import BRAND_VOICE_AGENT_INSTRUCTION
+
+# Conditionally import RAG search tools (will be None if not configured)
+try:
+    from .tools import (
+        plan_example_search,
+        plan_grl_pattern_search,
+        plan_similar_by_type,
+        plan_corpus_insights
+    )
+    RAG_AVAILABLE = plan_example_search is not None
+except ImportError:
+    plan_example_search = None
+    plan_grl_pattern_search = None
+    plan_similar_by_type = None
+    plan_corpus_insights = None
+    RAG_AVAILABLE = False
+
+from .prompts.plan_on_page_instructions import PLAN_ON_PAGE_AGENT_INSTRUCTION
 
 logger = logging.getLogger(__name__)
 
@@ -43,54 +78,86 @@ def get_users_name(tool_context: ToolContext) -> dict:
 
 def self_report():
     """Report the agent version and capabilities."""
+    capabilities = [
+        "Analyze existing Plan on a Page documents and identify gaps",
+        "Guide users through creating new plans from scratch",
+        "Provide specialized G/R/L (Global/Regional/Local) assignment help",
+        "Apply Adopt/Adapt/Invent framework for cross-geography alignment",
+        "Detect duplicate initiatives to prevent redundant work",
+        "Validate plan completeness before submission",
+        "Format plans according to standard template"
+    ]
+
+    if RAG_AVAILABLE:
+        capabilities.extend([
+            "Search corpus of example Plan on a Page documents for patterns and best practices",
+            "Show real G/R/L assignments from similar campaigns",
+            "Compare plans against successful examples from knowledge base"
+        ])
+
     return {
-        "name": "Google Cloud Brand Voice Agent",
-        "version": "1.0.2",
-        "capabilities": [
-            "Content review and brand voice analysis",
-            "Blog content generation from topics and key points",
-            "Headline generation and optimization",
-            "Brand voice compliance checking",
-            "Google Cloud terminology guidance"
-        ],
-        "description": "AI-powered writing assistant for Google Cloud marketers and content creators"
+        "name": "Plan on a Page Agent",
+        "version": "1.0.0",
+        "capabilities": capabilities,
+        "rag_enabled": RAG_AVAILABLE,
+        "description": "A collaborative assistant for marketers who need to develop or refine their Plan on a Page submissions for campaigns, launches, or major initiatives"
     }
 
 
-# Prepare tools list with RAG capabilities
+# Prepare tools list
 agent_tools = [
-    # Core functionality tools
-    review_content_for_brand_voice,
-    generate_blog_content,
-    generate_content_outline,
-    generate_headlines,
-    optimize_existing_headline,
+    # Core plan analysis and generation tools
+    analyze_plan,
+    generate_new_plan,
+    validate_plan_completeness,
 
-    # Helper and reference tools
-    get_quick_brand_voice_tips,
-    get_headline_best_practices,
-    retrieve_brand_voice_guidelines,
-    check_brand_voice_compliance,
-    get_google_cloud_terminology,
-    search_brand_voice_examples,
+    # G/R/L specialized tools (critical for cross-geography alignment)
+    guide_grl_assignment,
+    suggest_adopt_adapt_invent,
+    get_grl_best_practices,
+
+    # Supporting tools
+    get_section_prompts,
+    get_plan_template_blank,
+    format_plan_output,
+    quick_completeness_check,
+    get_grl_specific_feedback,
+
+    # Duplicate detection
+    search_similar_plans,
+
+    # Template and knowledge access
+    get_template,
+    get_section_guidance,
+    get_grl_framework_guide,
+
+    # File upload support
+    list_artifacts,
+    get_artifact,
 
     # User management tools
     get_users_name,
     self_report
 ]
 
-# Add RAG search tool if available
-if brand_voice_search_tool is not None:
-    agent_tools.append(brand_voice_search_tool)
-    logger.info("Brand voice search tool added to agent")
+# Conditionally add RAG search tools if available
+if RAG_AVAILABLE:
+    agent_tools.extend([
+        plan_example_search,
+        plan_grl_pattern_search,
+        plan_similar_by_type,
+        plan_corpus_insights
+    ])
+    logger.info("RAG search tools available and loaded")
 else:
-    # Fallback message when RAG is not configured
-    logger.info("Brand voice search tool not configured - using embedded knowledge only")
+    logger.info("RAG search tools not available (VERTEX_SEARCH_ENGINE_ID or RAG_CORPUS not configured)")
+
+logger.info(f"Plan on a Page Agent initialized with {len(agent_tools)} tools")
 
 root_agent = LlmAgent(
     model="gemini-2.0-flash-001",
-    name="brand_voice_agent",
-    description="Google Cloud Brand Voice Agent - An AI-powered writing assistant for Google Cloud marketers and content creators that helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.",
-    instruction=BRAND_VOICE_AGENT_INSTRUCTION,
+    name="plan_on_page_agent",
+    description="Plan on a Page Agent - A collaborative assistant designed for marketers who need to develop or refine their Plan on a Page submissions for campaigns, launches, or major initiatives. This agent acts as both a strategic guide and a process facilitator, ensuring that every plan is complete and aligned across global, regional, and local teams.",
+    instruction=PLAN_ON_PAGE_AGENT_INSTRUCTION,
     tools=agent_tools,
 )

@@ -1,53 +1,88 @@
-# Google Cloud Brand Voice Agent
+# Plan on a Page Agent
 
-An AI-powered writing assistant designed specifically for Google Cloud marketers and content creators. This agent helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.
+A collaborative AI assistant designed specifically for marketers who need to develop or refine their "Plan on a Page" submissions for campaigns, launches, or major initiatives. This agent acts as both a strategic guide and a process facilitator, ensuring that every plan is complete and aligned across global, regional, and local teams.
 
 ## 🎯 Overview
 
-The Brand Voice Agent is built on Google's Agent Development Kit (ADK) and provides three core capabilities:
+The Plan on a Page Agent helps marketers create clear, actionable plans that align work across geographies and teams, with special focus on the G/R/L (Global/Regional/Local) section using the Adopt/Adapt/Invent framework.
 
-1. **Content Reviewer** (Priority 1) - Analyzes existing content for brand voice compliance
-2. **Content Generator** (Priority 2) - Creates new blog content from topics and key points
-3. **Headline Generator** (Priority 3) - Generates multiple compelling headline options
+## 💼 Business Problem
 
-## 🚀 Features
+Marketers struggle to create complete, aligned plans. The G/R/L section is frequently misunderstood or underutilized, leading to:
+- **Duplication** of effort across teams
+- **Misalignment** between global, regional, and local initiatives
+- **Missed opportunities** for scaling successful work
+- **Unclear roles** and responsibilities
 
-### Core Functionality
-- **Content Analysis**: Review existing text and get specific brand voice improvement suggestions
-- **Content Creation**: Generate full blog drafts from topics, key points, and target audience
-- **Headline Generation**: Create multiple headline variations optimized for SEO and engagement
-- **Brand Compliance**: Automated checking against Google Cloud brand voice guidelines
-- **Knowledge Integration**: RAG-powered search through brand voice documentation (when configured)
+## 🚀 Core Capabilities
 
-### Technical Features
-- **OAuth Integration**: Secure user authentication via Google Cloud
-- **RAG Support**: Vertex AI Search integration for enhanced knowledge retrieval
-- **Flexible Deployment**: Works in local development and cloud environments
-- **Comprehensive Logging**: Detailed logging for debugging and monitoring
-- **Graceful Fallbacks**: Uses embedded knowledge when RAG is unavailable
+### 1. **Plan Analysis & Improvement** (Priority 1)
+For users with existing drafts:
+- Analyze uploaded documents for completeness and clarity
+- Identify gaps, ambiguities, or missing information
+- Suggest targeted improvements, especially for G/R/L section
+- Validate that roles and responsibilities are explicit
+- Check that Adopt/Adapt/Invent framework is properly applied
 
-## 📁 Project Structure
+### 2. **Guided Plan Creation** (Priority 2)
+For users starting from scratch:
+- Guide step-by-step through each section of the template
+- Prompt for all required fields
+- Focus especially on activation components and G/R/L assignments
+- Help apply the Adopt/Adapt/Invent framework to each component
+- Encourage early alignment conversations with stakeholders
 
-```
-├── agent/
-│   ├── agent.py                    # Main agent entry point
-│   ├── .env                        # Environment configuration
-│   ├── .env.example               # Environment template
-│   ├── prompts/
-│   │   └── brand_voice_instructions.py  # Agent instructions and prompts
-│   └── tools/                     # Agent tools
-│       ├── __init__.py
-│       ├── content_reviewer.py    # Content analysis tools
-│       ├── content_generator.py   # Content creation tools
-│       ├── headline_generator.py  # Headline creation tools
-│       ├── brand_voice_knowledge.py  # Core knowledge base
-│       ├── brand_voice_search_tool.py # RAG search integration
-│       ├── oauth_support.py       # OAuth utilities
-│       └── ...
-├── agent.yaml                     # Agent metadata and configuration
-├── requirements.txt               # Python dependencies
-└── README.md                      # This documentation
-```
+### 3. **Duplicate Detection** (Priority 3)
+- Search existing plans in Drive for similar initiatives
+- Flag potential duplicates or overlaps
+- Prevent redundant work and encourage collaboration
+
+### 4. **Validation & Quality Assurance**
+- Validate plan completeness before finalization
+- Check that all mandatory fields are filled
+- Ensure G/R/L assignments are clear and comprehensive
+- Verify that team leads are named for each geography
+
+### 5. **RAG-Enhanced Knowledge (Optional)**
+When configured with a Vertex AI Search corpus:
+- **Search example plans** - Find similar successful plans from knowledge base
+- **Real G/R/L patterns** - Show how similar campaigns handled G/R/L assignments
+- **Campaign type insights** - Compare against relevant examples (product launches, brand campaigns, events)
+- **Best practices** - Surface patterns and approaches from high-quality example plans
+
+This optional enhancement enriches guidance with concrete examples from real campaigns, helping users learn from proven approaches.
+
+## 📋 Plan on a Page Template
+
+Required sections:
+1. **Project Identifiers** - Name, Executive Sponsor, Project Lead, Project Manager
+2. **Decision Framework (D/I/N)** - Decide, Input, Notify roles
+3. **G/R/L Table** - Global/Regional/Local leads with Adopt/Adapt/Invent notes
+4. **Strategic Context** - Marketing objectives, OKR alignment, project description
+5. **Audience & Messaging** - Target audience, key messages
+6. **Execution** - Investment, milestones, activation components
+7. **Risk & Measurement** - Risks/blockers, KPIs, anticipated impact
+
+## 🌍 G/R/L Framework Expertise
+
+The agent is an expert on the Global/Regional/Local framework:
+
+**Geographies:**
+- **Global (G):** Work created centrally and deployed across all markets
+- **Regional (R):** Work created for specific regions (EMEA, APAC, Americas, etc.)
+- **Local (L):** Work created for specific countries or local markets
+
+**Adopt/Adapt/Invent Framework:**
+- **Adopt:** Use the work as-is from another team (most efficient)
+- **Adapt:** Modify existing work to fit local needs (translation, cultural adaptation)
+- **Invent:** Create net-new work specific to this geography (only when necessary)
+
+**Key Principles:**
+- Each activation component should have clear G/R/L ownership
+- Name the lead person for each geography
+- Specify whether each team will Adopt, Adapt, or Invent
+- Include notes explaining the rationale for each decision
+- Encourage early alignment conversations between teams
 
 ## 🛠 Installation & Setup
 
@@ -56,6 +91,7 @@ The Brand Voice Agent is built on Google's Agent Development Kit (ADK) and provi
 - Google Cloud Project with enabled APIs:
   - Vertex AI API
   - Cloud AI Platform API
+  - Google Drive API (for duplicate detection)
   - Identity and Access Management (IAM) API
 
 ### Local Development Setup
@@ -106,160 +142,97 @@ GOOGLE_OAUTH_CLIENT_SECRET=your-oauth-client-secret
 # Required: API Keys
 GOOGLE_API_KEY=your-google-api-key
 GOOGLE_GENAI_API_KEY=your-genai-api-key
-GOOGLE_GENAI_MODEL=gemini-2.5-flash
-
-# Optional: RAG Configuration (for enhanced knowledge retrieval)
-RAG_CORPUS=projects/your-project/locations/us-central1/ragCorpora/brand-voice-corpus-id
-VERTEX_SEARCH_ENGINE_ID=your-search-engine-id
+GOOGLE_GENAI_MODEL=gemini-2.0-flash-001
 
 # AgentSpace Configuration
-AUTHORIZATION_NAME=brand-voice-auth-001
+AUTHORIZATION_NAME=plan_on_page_auth_001
 ```
 
-## 🔧 Configuration
+## 📁 Project Structure
 
-### Agent Configuration (agent.yaml)
-
-```yaml
-defaults:
-  scopes:
-    - https://www.googleapis.com/auth/cloud-platform
-    - openid
-    - https://www.googleapis.com/auth/userinfo.email
-    - https://www.googleapis.com/auth/userinfo.profile
-  metadata:
-    reasoning_engine_name: ort_brand_voice_agent
-    reasoning_engine_description: A reasoning engine for Google Cloud Brand Voice Agent
-    agent_space_name: Cloud Marketing Brand Voice Agent
-    agent_space_description: An AI-powered writing assistant for Google Cloud marketers
-    agent_space_tool_description: Use this tool to analyze content, generate drafts, and create headlines
-  auth:
-    oauth_authorization_id: brand_voice_auth_001
-  environment_variables:
-    RAG_CORPUS: "projects/your-project/locations/us-central1/ragCorpora/brand-voice-corpus-id"
 ```
-
-### RAG Setup (Optional)
-
-For enhanced knowledge retrieval, set up Vertex AI Search:
-
-1. **Create a Search Application** in Google Cloud Console
-2. **Upload Brand Voice Documents**:
-   - Google Cloud Brand Voice & Style Guide
-   - 50+ gold standard blog post examples
-   - Terminology standards
-   - Content best practices
-3. **Configure Environment Variables**:
-   ```bash
-   RAG_CORPUS=projects/your-project/locations/us-central1/ragCorpora/your-corpus-id
-   VERTEX_SEARCH_ENGINE_ID=your-search-engine-id
-   ```
+├── agent/
+│   ├── agent.py                           # Main agent entry point
+│   ├── .env                               # Environment configuration
+│   ├── .env.example                       # Environment template
+│   ├── prompts/
+│   │   └── plan_on_page_instructions.py   # Agent instructions
+│   └── tools/                             # Agent tools
+│       ├── __init__.py
+│       ├── plan_analyzer.py               # Analyze existing plans
+│       ├── plan_generator.py              # Guide new plan creation
+│       ├── grl_helper.py                  # G/R/L assignment help
+│       ├── plan_formatter.py              # Template formatting
+│       ├── plan_validator.py              # Completeness validation
+│       ├── duplicate_detector.py          # Find similar plans
+│       ├── plan_template_knowledge.py     # Template & best practices
+│       ├── file_upload_supprt.py          # Document upload support
+│       ├── drive_search_supporter.py      # Drive search for duplicates
+│       └── oauth_support.py               # OAuth utilities
+│   └── sample-templates/
+│       └── Plan on a Page.md              # Template reference
+├── agent.yaml                             # Agent metadata
+├── requirements.txt                       # Python dependencies
+└── README.md                              # This documentation
+```
 
 ## 🎯 Usage
 
-### Available Tools
-
-The agent provides these tools for content creation:
-
-#### Core Content Tools
-1. **`review_content_for_brand_voice`** - Analyze existing content
-   ```python
-   review_content_for_brand_voice(
-       content="Your blog post content...",
-       content_type="blog_post",
-       target_audience="technical professionals"
-   )
-   ```
-
-2. **`generate_blog_content`** - Create new blog posts
-   ```python
-   generate_blog_content(
-       topic="How to optimize Google Cloud costs",
-       key_points=["Right-sizing instances", "Using preemptible VMs", "Storage optimization"],
-       target_audience="technical professionals",
-       content_length="medium"
-   )
-   ```
-
-3. **`generate_headlines`** - Create multiple headline options
-   ```python
-   generate_headlines(
-       topic="Google Cloud security best practices",
-       target_audience="security professionals",
-       headline_types=["how-to", "benefit-driven", "problem-solution"]
-   )
-   ```
-
-#### Knowledge & Reference Tools
-4. **`search_brand_voice_knowledge`** - Search knowledge base (when RAG configured)
-5. **`retrieve_brand_voice_guidelines`** - Get specific brand guidelines
-6. **`check_brand_voice_compliance`** - Automated compliance checking
-7. **`get_google_cloud_terminology`** - Access official terminology
-
-#### Helper Tools
-8. **`get_quick_brand_voice_tips`** - Quick tips for content types
-9. **`get_headline_best_practices`** - Headline writing guidelines
-
 ### Example Interactions
 
-#### Content Review
+#### Starting a New Plan
+
 ```
-User: "Please review this blog post intro for brand voice compliance..."
+User: "I need to create a Plan on a Page for our Q3 product launch campaign."
 
-Agent: I'll analyze your content for Google Cloud brand voice compliance.
+Agent: "Absolutely! I'll help you create a Plan on a Page for your Q3 product launch.
+Let's start with the basics:
 
-[Reviews content and provides specific feedback]
+1. What's the specific name for this campaign?
+2. Who is the Executive Sponsor?
+3. What marketing objectives does this support? Which OKRs does it ladder to?
 
-## Brand Voice Analysis Results
-
-### 3 Key Improvements:
-1. **Clarity Enhancement**: Replace "leverage" with "use" for clearer language
-2. **Brand Voice Alignment**: Add more customer-focused benefits
-3. **Structure Optimization**: Break up the 150-word paragraph into shorter sections
-
-### Brand Voice Score: 7/10
-**Explanation**: Good technical accuracy but needs more conversational tone and customer focus.
+Once we have the foundation, we'll identify your activation components and work through
+the G/R/L assignments to ensure alignment across all teams."
 ```
 
-#### Content Generation
+#### Reviewing an Existing Plan
+
 ```
-User: "Generate a blog post about Google Cloud AI/ML for technical teams"
+User: "Can you review my plan draft and help me improve the G/R/L section?"
 
-Agent: I'll create a comprehensive blog post about Google Cloud AI/ML for technical teams.
-
-[Generates structured blog content with proper Google Cloud brand voice]
-
-# Accelerate Innovation with Google Cloud AI and Machine Learning
-
-## Introduction
-Technical teams today face mounting pressure to deliver AI-powered solutions...
-
-[Full blog post with proper structure, examples, and Google Cloud integration]
+Agent: "I'd be happy to review your plan! Please upload your draft document or paste
+the content, and I'll analyze it for completeness and provide specific recommendations,
+with special focus on the G/R/L section to ensure clear assignments and proper use of
+the Adopt/Adapt/Invent framework."
 ```
 
-## 🧠 Brand Voice Guidelines
+### Available Tools
 
-The agent follows Google Cloud's brand voice principles:
+The agent provides these specialized tools:
 
-### Voice Characteristics
-- **Clear and Accessible**: Plain language, conversational but professional
-- **Helpful and Solution-Oriented**: Focus on solving customer problems
-- **Confident but Humble**: Show expertise without arrogance
-- **Innovation-Focused**: Highlight cutting-edge technology
-- **Inclusive and Welcoming**: Use inclusive language for all audiences
+#### Core Planning Tools
+1. **`analyze_plan`** - Review existing plans and identify gaps
+2. **`generate_new_plan`** - Guide users through creating plans from scratch
+3. **`validate_plan_completeness`** - Check if all required sections are complete
 
-### Content Standards
-- Remove corporate jargon and buzzwords
-- Use active voice and clear, concise sentences
-- Structure content with clear headings and logical flow
-- Include specific examples and practical applications
-- Follow AP style guidelines where applicable
+#### G/R/L Specialized Tools
+4. **`guide_grl_assignment`** - Interactive help for G/R/L section
+5. **`suggest_adopt_adapt_invent`** - Recommend A/A/I framework application
+6. **`get_grl_best_practices`** - Access G/R/L best practices and patterns
 
-### Terminology Standards
-- Use "Google Cloud" not "GCP" in customer-facing content
-- Say "AI and machine learning" not just "AI/ML"
-- Use "multicloud" not "multi-cloud"
-- Refer to "customers" not "users" when appropriate
+#### Supporting Tools
+7. **`format_plan_output`** - Format final plan according to template
+8. **`search_similar_plans`** - Find potential duplicate initiatives
+9. **`get_template`** - Retrieve the blank template
+10. **`list_artifacts`** - See uploaded documents
+
+#### RAG-Enhanced Tools (Optional)
+When RAG corpus is configured:
+11. **`plan_example_search`** - Search corpus of example plans for patterns
+12. **`plan_grl_pattern_search`** - Find real G/R/L assignments from similar campaigns
+13. **`plan_similar_by_type`** - Retrieve example plans by campaign type
+14. **`plan_corpus_insights`** - Get statistical insights from example plans
 
 ## 🚀 Deployment
 
@@ -278,8 +251,8 @@ The agent automatically deploys when pushed to the deployment branch:
 
 ```bash
 # Commit changes
-git add agent/agent.py agent.yaml
-git commit -m "Update Brand Voice Agent"
+git add .
+git commit -m "Update Plan on a Page Agent"
 
 # Push to trigger deployment
 git push origin sa-ort-brand-voice-agent-deployment-branch
@@ -291,111 +264,112 @@ git push origin sa-ort-brand-voice-agent-deployment-branch
 - **OAuth configuration**: Set up authorization in Google Cloud Console
 - **Environment variables**: Configure secrets via Google Cloud Secret Manager
 
-## 🔍 Troubleshooting
+## 📈 Use Cases
 
-### Common Issues
+### 1. Guided Idea Intake
+**Scenario:** A marketer needs to create a plan from scratch
+- Agent prompts for required sections systematically
+- Ensures all mandatory fields are captured
+- Guides through G/R/L assignments step-by-step
 
-#### Type Annotation Errors
-**Error**: `Default value None of parameter ... is not compatible`
-**Solution**: Use `Optional[Type] = None` instead of `Type = None`
+**Outcome:** Complete, standardized plan ready for review
 
-```python
-# ❌ Incorrect
-def my_function(param: List[str] = None):
+### 2. Duplicate Detection & Clarification
+**Scenario:** Multiple teams may be working on similar initiatives
+- Agent searches for similar existing plans
+- Flags potential duplicates with similarity scores
+- Asks: "Is this the same, a feature extension, or distinct?"
 
-# ✅ Correct
-def my_function(param: Optional[List[str]] = None):
-```
+**Outcome:** Eliminates duplicate work, encourages collaboration
 
-#### RAG Not Working
-**Error**: `VERTEX_SEARCH_ENGINE_ID environment variable not set`
-**Solution**: Either configure RAG or agent will use embedded knowledge
+### 3. G/R/L Alignment Facilitation
+**Scenario:** Team needs to coordinate across geographies
+- Agent helps identify which team leads each component
+- Guides Adopt/Adapt/Invent decisions
+- Prompts for named leads and rationale notes
 
-```bash
-# Configure RAG (optional)
-VERTEX_SEARCH_ENGINE_ID=your-search-engine-id
+**Outcome:** Clear roles, efficient reuse of work, aligned execution
 
-# Or comment out for embedded knowledge only
-# VERTEX_SEARCH_ENGINE_ID=your-search-engine-id
-```
+### 4. Standardized Requirements Compilation
+**Scenario:** Plan content is scattered across emails and docs
+- Agent extracts key information conversationally
+- Formats into standardized template structure
+- Validates completeness before submission
 
-#### Authorization Conflicts
-**Error**: Authorization already in use
-**Solution**: Use unique authorization names in `agent.yaml`
+**Outcome:** Consistent format, faster review cycles
 
-```yaml
-auth:
-  oauth_authorization_id: brand_voice_auth_001  # Make this unique
-```
+### 5. Accelerated Committee Review
+**Scenario:** Leadership reviews multiple plan submissions
+- All plans follow same template and quality standard
+- Duplicates are already resolved or flagged
+- G/R/L assignments are clear and explicit
 
-### Logging
-
-The agent provides comprehensive logging:
-
-```bash
-# View agent logs
-tail -f logs/agent.log
-
-# Key log messages
-INFO - Brand voice search tool added to agent
-WARNING - VERTEX_SEARCH_ENGINE_ID environment variable not set
-INFO - Brand voice search tool not configured - using embedded knowledge only
-```
+**Outcome:** Faster prioritization, less administrative burden
 
 ## 🧪 Testing
 
 ### Manual Testing
 1. **Start the agent**: `adk agent run`
 2. **Open web interface**: http://localhost:8000
-3. **Test core functions**:
-   - Review sample content
-   - Generate a blog post
-   - Create headlines
+3. **Test flows**:
+   - Create a new plan from scratch
+   - Upload and analyze an existing plan
+   - Test G/R/L assignment guidance
+   - Validate a complete plan
 
-### Function Testing
-```python
-# Test agent import
-from agent.agent import root_agent
-print(f"Agent loaded with {len(root_agent.tools)} tools")
+## 🔍 Troubleshooting
 
-# Test specific tools
-from agent.tools import review_content_for_brand_voice
-result = review_content_for_brand_voice("Sample content...")
-print(result)
-```
+### Common Issues
 
-## 📈 Performance & Metrics
+#### OAuth/Drive Access Issues
+**Error**: Cannot search for duplicates
+**Solution**: Ensure Drive API scopes are included in agent.yaml and OAuth consent screen
 
-### Success Metrics
-- **Adoption Rate**: Percentage of generated suggestions users copy or use
-- **Time Saved**: Self-reported time savings from users
-- **Quality Improvement**: Manual review scores of outputs by brand team
+#### File Upload Issues
+**Error**: Cannot process uploaded documents
+**Solution**: Verify file_upload_supprt.py is properly configured for DOCX/PDF/TXT formats
 
-### Performance Considerations
-- **Response Time**: ~2-5 seconds for content review, ~10-30 seconds for generation
-- **Token Usage**: Optimized prompts to minimize LLM token consumption
-- **RAG Efficiency**: Search results cached and optimized for relevance
+## 📚 Key Concepts
+
+### D/I/N Framework
+- **Decide**: 1-2 people with final say
+- **Input**: 3-5 people who provide input before decisions
+- **Notify**: Anyone else who should be informed
+
+### Activation Components
+Channels and tactics to reach your audience:
+- Social media
+- Content marketing
+- Events and webinars
+- Paid advertising
+- PR and thought leadership
+- Email campaigns
+- Partner co-marketing
+
+### Quality Checklist
+- ✓ All 15 required sections complete
+- ✓ No TBD or placeholder text
+- ✓ Named individuals (not teams)
+- ✓ Actual dates (not "Q2" or "upcoming")
+- ✓ Quantified KPIs
+- ✓ G/R/L table with named leads
+- ✓ Adopt/Adapt/Invent specified for each component
+- ✓ Explanatory notes for assignments
 
 ## 🤝 Contributing
 
 ### Development Workflow
-1. **Branch from main**: Create feature branch from `main`
+1. **Branch from main**: Create feature branch
 2. **Implement changes**: Follow existing code patterns
 3. **Test thoroughly**: Verify all tools work correctly
-4. **Update documentation**: Keep README and code comments current
-5. **Deploy to branch**: Push to `sa-ort-brand-voice-agent-deployment-branch`
+4. **Update documentation**: Keep README current
+5. **Deploy to branch**: Push to deployment branch
 
 ### Code Standards
-- **Type Hints**: Use proper type annotations with Optional for None defaults
+- **Type Hints**: Use proper type annotations
 - **Documentation**: Document all functions with clear docstrings
-- **Error Handling**: Graceful fallbacks and informative error messages
-- **Logging**: Use appropriate log levels for debugging and monitoring
-
-## 📚 References
-
-- [Google ADK Documentation](https://cloud.google.com/vertex-ai/generative-ai/docs/agent-builder)
-- [Vertex AI Search Documentation](https://cloud.google.com/vertex-ai-search/docs)
-- [Google Cloud Brand Guidelines](https://cloud.google.com/brand-guidelines) (Internal)
+- **Error Handling**: Graceful fallbacks and informative errors
+- **Logging**: Use appropriate log levels
 
 ## 📄 License
 
@@ -408,9 +382,9 @@ Copyright 2025 Google LLC. Licensed under the Apache License, Version 2.0.
 For issues or questions:
 1. Check the troubleshooting section above
 2. Review agent logs for error details
-3. Contact the development team via internal channels
-4. Create an issue in the repository (if applicable)
+3. Contact the development team
+4. Create an issue in the repository
 
 ---
 
-**Built with ❤️ by the Google Cloud Marketing Team**
+**Built for Marketing Excellence by Google Cloud Marketing Team**

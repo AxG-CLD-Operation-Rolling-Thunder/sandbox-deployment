@@ -1,8 +1,8 @@
-# Brand Voice Agent Deployment Guide
+# Plan on a Page Agent Deployment Guide
 
 ## Overview
 
-This guide covers the complete deployment process for the Google Cloud Brand Voice Agent, from local development to production deployment using Google Cloud's Agent Development Kit (ADK).
+This guide covers the complete deployment process for the Plan on a Page Agent, from local development to production deployment using Google Cloud's Agent Development Kit (ADK).
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ Your Google Cloud account needs:
 git clone <repository-url>
 cd sandbox-deployment
 
-# Switch to the Brand Voice Agent branch
+# Switch to the deployment branch
 git checkout sa-ort-brand-voice-agent-deployment-branch
 
 # Create and activate virtual environment
@@ -75,10 +75,10 @@ GOOGLE_GENAI_MODEL=gemini-2.5-flash
 
 # AgentSpace Configuration (Required)
 AS_APP=your-agentspace-app-id
-AUTHORIZATION_NAME=brand-voice-auth-001
+AUTHORIZATION_NAME=plan_on_page_auth_001
 
-# RAG Configuration (Optional)
-RAG_CORPUS=projects/your-project/locations/us-central1/ragCorpora/brand-voice-corpus-id
+# RAG Configuration (Optional - for enhanced planning knowledge)
+RAG_CORPUS=projects/your-project/locations/us-central1/ragCorpora/plan-knowledge-corpus-id
 # VERTEX_SEARCH_ENGINE_ID=your-search-engine-id  # Uncomment when RAG is set up
 
 # Development Flags
@@ -121,15 +121,14 @@ adk agent run
 python -c "from agent.agent import root_agent; print(f'Agent loaded with {len(root_agent.tools)} tools')"
 
 # Expected output:
-# Agent loaded with 13 tools
-# VERTEX_SEARCH_ENGINE_ID environment variable not set
+# Plan on a Page Agent initialized with 18 tools
 ```
 
 #### Test Core Functions
 1. Open http://localhost:8000 in your browser
-2. Test content review with sample text
-3. Generate a blog post outline
-4. Create headlines for a topic
+2. Test creating a new Plan on a Page
+3. Upload and analyze an existing plan draft
+4. Test G/R/L assignment guidance
 
 ## RAG Setup (Optional)
 
@@ -140,26 +139,26 @@ python -c "from agent.agent import root_agent; print(f'Agent loaded with {len(ro
 2. Click **Create App**
 3. Select **Search** app type
 4. Choose **Generic** as the content type
-5. Name: `google-cloud-brand-voice-search`
+5. Name: `plan-on-page-knowledge-base`
 
 #### Using gcloud CLI
 ```bash
 gcloud alpha discovery-engine data-stores create \
-    --display-name="Brand Voice Knowledge Base" \
+    --display-name="Plan on a Page Knowledge Base" \
     --industry-vertical=GENERIC \
     --content-config=CONTENT_REQUIRED \
     --solution-type=SOLUTION_TYPE_SEARCH \
     --location=us-central1
 ```
 
-### 2. Upload Brand Voice Documents
+### 2. Upload Planning Documents
 
 #### Document Types to Include
-- **Google Cloud Brand Voice Guide** (official style guide)
-- **Gold Standard Blog Posts** (50+ high-quality examples)
-- **Terminology Standards** (official Google Cloud terminology)
-- **Content Templates** (proven content structures)
-- **Best Practices** (writing guidelines and tips)
+- **Plan on a Page Template** (official template)
+- **Example Plans** (successful completed plans)
+- **G/R/L Framework Guide** (Global/Regional/Local best practices)
+- **Adopt/Adapt/Invent Guidelines** (framework documentation)
+- **Planning Best Practices** (tips and common patterns)
 
 #### Upload via Console
 1. In your search app, go to **Data > Data Stores**
@@ -189,7 +188,7 @@ VERTEX_SEARCH_ENGINE_ID=your-search-engine-id
 adk agent run
 
 # Look for log message:
-# INFO - Brand voice search tool added to agent
+# INFO - Plan on a Page Agent initialized with 18 tools
 ```
 
 ## Production Deployment

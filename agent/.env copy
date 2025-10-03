@@ -1,0 +1,34 @@
+# Google Cloud Configuration
+GOOGLE_CLOUD_PROJECT=oxjytxr-mss-mkt-genai-accel
+GOOGLE_CLOUD_LOCATION=us-central1
+GOOGLE_PROJECT_NUMBER=48233614973
+
+# Google OAuth Configuration
+GOOGLE_OAUTH_CLIENT_ID=48233614973-oth2dc9bmbvbf4001vktqqo32sql6omk.apps.googleusercontent.com
+GOOGLE_OAUTH_CLIENT_SECRET=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
+
+# Google API Keys
+GOOGLE_API_KEY=AIzaSyBItU3CpLXLamNOUIUvw5QZceOTxjvK35A
+GOOGLE_GENAI_API_KEY=AIzaSyBItU3CpLXLamNOUIUvw5QZceOTxjvK35A
+GOOGLE_GENAI_MODEL=gemini-2.5-flash
+
+# AgentSpace Configuration
+AS_APP=gs-aix-agentspace-test_1745371742740
+AUTHORIZATION_NAME=brand-voice-auth-001
+
+# Environment Flags
+LOCAL_DEV=1
+ADK_DEV_MODE=false
+ADK_LOCAL_RUN=false
+AGENTSPACE_DEPLOYMENT=false
+
+# Deployment Configuration
+STAGING_BUCKET=gs://gtm-customerinnovation-staging
+
+# RAG Configuration for Brand Voice Agent
+RAG_CORPUS='projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/5359846506524311552'
+# VERTEX_SEARCH_ENGINE_ID=your-brand-voice-search-engine-id
+
+# Brand Voice Specific Configuration
+BRAND_VOICE_CORPUS_NAME=google-cloud-brand-voice-kb
+BRAND_VOICE_SEARCH_LOCATION=us-central1

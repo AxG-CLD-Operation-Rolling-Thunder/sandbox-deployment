@@ -13,27 +13,77 @@
 # limitations under the License.
 
 """
-Tools package for Google Cloud Brand Voice Agent
+Tools package for Plan on a Page Agent
 """
 
-from .content_reviewer import review_content_for_brand_voice, get_quick_brand_voice_tips
-from .content_generator import generate_blog_content, generate_content_outline
-from .headline_generator import generate_headlines, optimize_existing_headline, get_headline_best_practices
-from .brand_voice_knowledge import retrieve_brand_voice_guidelines, check_brand_voice_compliance, get_google_cloud_terminology
-from .brand_voice_search_tool import brand_voice_search_tool, retrieve_brand_voice_knowledge, search_brand_voice_examples
+from .plan_analyzer import analyze_plan, quick_completeness_check, get_grl_specific_feedback
+from .plan_generator import generate_new_plan, get_section_prompts, get_plan_template_blank
+from .grl_helper import guide_grl_assignment, suggest_adopt_adapt_invent, get_grl_best_practices, format_grl_table_entry
+from .plan_formatter import format_plan_output, validate_format_compliance, extract_plan_data_from_text
+from .plan_validator import validate_plan_completeness, quick_validation
+from .duplicate_detector import search_similar_plans, check_for_duplicates_simple
+from .plan_template_knowledge import get_template, get_section_guidance, get_grl_framework_guide
+from .file_upload_supprt import list_artifacts, get_artifact
+
+# Import RAG search functions (will be None if RAG not configured)
+try:
+    from .plan_rag_search_tool import (
+        plan_example_search,
+        plan_grl_pattern_search,
+        plan_similar_by_type,
+        plan_corpus_insights
+    )
+except ImportError:
+    plan_example_search = None
+    plan_grl_pattern_search = None
+    plan_similar_by_type = None
+    plan_corpus_insights = None
 
 __all__ = [
-    'review_content_for_brand_voice',
-    'get_quick_brand_voice_tips',
-    'generate_blog_content',
-    'generate_content_outline',
-    'generate_headlines',
-    'optimize_existing_headline',
-    'get_headline_best_practices',
-    'retrieve_brand_voice_guidelines',
-    'check_brand_voice_compliance',
-    'get_google_cloud_terminology',
-    'brand_voice_search_tool',
-    'retrieve_brand_voice_knowledge',
-    'search_brand_voice_examples'
+    # Plan Analysis Tools
+    'analyze_plan',
+    'quick_completeness_check',
+    'get_grl_specific_feedback',
+
+    # Plan Generation Tools
+    'generate_new_plan',
+    'get_section_prompts',
+    'get_plan_template_blank',
+
+    # G/R/L Helper Tools
+    'guide_grl_assignment',
+    'suggest_adopt_adapt_invent',
+    'get_grl_best_practices',
+    'format_grl_table_entry',
+
+    # Formatting Tools
+    'format_plan_output',
+    'validate_format_compliance',
+    'extract_plan_data_from_text',
+
+    # Validation Tools
+    'validate_plan_completeness',
+    'quick_validation',
+
+    # Duplicate Detection Tools
+    'search_similar_plans',
+    'check_for_duplicates_simple',
+
+    # Template & Knowledge Tools
+    'get_template',
+    'get_section_guidance',
+    'get_grl_framework_guide',
+
+    # File Upload Support
+    'list_artifacts',
+    'get_artifact'
 ]
+
+# Conditionally add RAG search tools if available
+if plan_example_search is not None:
+    __all__.extend([
+        'plan_example_search',
+        'plan_grl_pattern_search',
+        'plan_similar_by_type',
+        'plan_corpus_insights'
+    ])

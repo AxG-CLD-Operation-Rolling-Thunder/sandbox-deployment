@@ -4,13 +4,15 @@ defaults:
     - openid
     - https://www.googleapis.com/auth/userinfo.email
     - https://www.googleapis.com/auth/userinfo.profile
+    - https://www.googleapis.com/auth/drive.readonly
+    - https://www.googleapis.com/auth/drive.file
   metadata:
-    reasoning_engine_name: ort_brand_voice_agent
-    reasoning_engine_description: A reasoning engine for Google Cloud Brand Voice Agent that helps with content creation and brand voice analysis
-    agent_space_name: Cloud Marketing Brand Voice Agent
-    agent_space_description: An AI-powered writing assistant for Google Cloud marketers and content creators that helps brainstorm, draft, and refine blog content while ensuring alignment with Google Cloud brand voice guidelines.
-    agent_space_tool_description: Use this tool to analyze existing content for brand voice compliance, generate new blog content drafts, and create compelling headlines for Google Cloud marketing content.
+    reasoning_engine_name: plan_on_a_page_agent
+    reasoning_engine_description: A reasoning engine for Plan on a Page Agent that helps marketers develop and refine campaign planning documents with focus on G/R/L alignment
+    agent_space_name: Plan on a Page Agent
+    agent_space_description: A collaborative assistant designed for marketers who need to develop or refine their Plan on a Page submissions for campaigns, launches, or major initiatives. This agent acts as both a strategic guide and a process facilitator, ensuring that every plan is complete and aligned across global, regional, and local teams.
+    agent_space_tool_description: Use this tool to create new Plan on a Page documents from scratch, analyze and improve existing plans, ensure G/R/L alignment using the Adopt/Adapt/Invent framework, detect duplicate initiatives, and validate plan completeness.
   auth:
-    oauth_authorization_id: brand_voice_auth_003
+    oauth_authorization_id: plan_on_page_auth_001
   environment_variables:
     RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/5359846506524311552"
