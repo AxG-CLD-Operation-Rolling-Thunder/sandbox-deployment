@@ -1,8 +1,11 @@
 defaults:
   scopes:
+    - https://www.googleapis.com/auth/cloud-platform
     - openid
     - https://www.googleapis.com/auth/userinfo.email
     - https://www.googleapis.com/auth/userinfo.profile
+    - https://www.googleapis.com/auth/drive.readonly
+    - https://www.googleapis.com/auth/drive.file
   metadata:
     reasoning_engine_name: cloud_marketing_pulse_assistant
     reasoning_engine_description: A reasoning engine for writing Pulse Newsletters
@@ -10,5 +13,5 @@ defaults:
     agent_space_description: Helps Googlers write snippets for Pulse Newsletter
     agent_space_tool_description: None
   auth: 
-    oauth_authorization_id: cloud_marketing_pulse_assistant
+    oauth_authorization_id: pulse_agent_auth_1
   environment_variables:
