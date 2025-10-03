@@ -15,4 +15,4 @@ defaults:
   auth:
     oauth_authorization_id: plan_on_page_auth_001
   environment_variables:
-    RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/5359846506524311552"
+    RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/3379951520341557248"
