@@ -4,12 +4,12 @@ from google.adk.agents import LlmAgent  # Changed from Agent to LlmAgent
 from google.adk.tools.retrieval.vertex_ai_rag_retrieval import VertexAiRagRetrieval
 from google.adk.tools import agent_tool, ToolContext
 from vertexai.preview import rag
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 from .prompts import prompts
 from .tools.file_upload_support import list_artifacts
 from .tools.document_upload_tool import upload_to_google_docs_tool
 
-load_dotenv()
+# load_dotenv()
 logger = logging.getLogger(__name__)
 
 # Original RAG retrieval tool

@@ -6,10 +6,10 @@
 import json
 import os
 from typing import Dict, Any
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
 # Load environment variables
-load_dotenv(dotenv_path=".env")
+# load_dotenv(dotenv_path=".env")
 
 # Logging configuration
 LOG_IDENTIFIER = "GRAD_AGENT"
@@ -22,6 +22,7 @@ LOCAL_AUTH_CREDS_LOADED = json.loads(LOCAL_AUTH_CREDS)
 
 # API Scopes - matching EBC's pattern from agent.yaml
 API_SCOPES = [
+    "https://www.googleapis.com/auth/cloud-platform",
     "openid",
     "https://www.googleapis.com/auth/userinfo.email",
     "https://www.googleapis.com/auth/userinfo.profile",
