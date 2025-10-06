@@ -1,4 +1,4 @@
-"""Tools module for GTM Priority Play agent."""
+"""Tools module for Grad agent."""
 
 from .oauth_support import retrieve_user_auth
 from .file_upload_support import list_artifacts, get_artifact

@@ -13,11 +13,12 @@ from typing import Dict, Any
 
 # Logging configuration
 LOG_IDENTIFIER = "GRAD_AGENT"
+RAG_CORPUS='projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/6838716034162098176'
 
 # OAuth configuration
 # Source note: From EBC agent/config/config.py - same OAuth pattern
-AUTHORIZATION_ID = os.getenv("GTM_AUTHORIZATION_ID", "gtm_priority_play_auth")
-LOCAL_AUTH_CREDS = os.getenv("GTM_CLIENT_JSON_PAYLOAD", "{}")
+AUTHORIZATION_ID = os.getenv("AUTHORIZATION_ID", "gtm_priority_play_auth")
+LOCAL_AUTH_CREDS = os.getenv("CLIENT_JSON_PAYLOAD", "{}")
 LOCAL_AUTH_CREDS_LOADED = json.loads(LOCAL_AUTH_CREDS)
 
 # API Scopes - matching EBC's pattern from agent.yaml

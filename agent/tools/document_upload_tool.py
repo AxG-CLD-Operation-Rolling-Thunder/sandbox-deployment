@@ -12,12 +12,12 @@ from google.adk.tools import ToolContext
 from .oauth_support import retrieve_user_auth
 
 logger = logging.getLogger(__name__)
-LOG_IDENTIFIER = "GTM_PP"
+LOG_IDENTIFIER = "GRAD_AGENT"
 
 def upload_to_google_docs_tool(
     tool_context: ToolContext,
     document_title: Optional[str] = None,
-    document_type: Optional[str] = "GTM Priority Play Analysis"
+    document_type: Optional[str] = "Grad Agent Context"
 ) -> Dict[str, Any]:
     """
     Uploads generated content to Google Docs.
@@ -42,7 +42,6 @@ def upload_to_google_docs_tool(
         # Step 2: Check for document in context
         # Look for multiple possible keys where document might be stored
         possible_keys = [
-            "gtm_analysis_document",  # GTM-specific
             "generated_document",      # Generic
             "document_buffer",         # Alternative
             "executive_summary_document"  # Legacy EBC compatibility

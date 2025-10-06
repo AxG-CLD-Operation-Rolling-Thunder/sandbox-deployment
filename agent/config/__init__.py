@@ -1,4 +1,4 @@
-"""Configuration module for GTM Priority Play agent."""
+"""Configuration module for Grad agent."""
 
 from .config import (
     LOG_IDENTIFIER,
@@ -7,6 +7,7 @@ from .config import (
     MAX_UPLOAD_SIZE_MB,
     SUPPORTED_MIME_TYPES,
     TELEMETRY_ENABLED,
+    RAG_CORPUS,
     get_oauth_config,
 )
 
@@ -17,5 +18,6 @@ __all__ = [
     'MAX_UPLOAD_SIZE_MB',
     'SUPPORTED_MIME_TYPES',
     'TELEMETRY_ENABLED',
+    'RAG_CORPUS',
     'get_oauth_config',
 ]

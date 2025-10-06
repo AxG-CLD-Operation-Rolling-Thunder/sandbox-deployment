@@ -11,7 +11,7 @@ from google.adk.tools import ToolContext
 logger = logging.getLogger(__name__)
 
 # Constants
-LOG_IDENTIFIER = "GTM_PP"
+LOG_IDENTIFIER = "GRAD_AGENT"
 MAX_UPLOAD_SIZE_MB = 10
 SUPPORTED_MIME_TYPES = [
     'application/pdf',
@@ -61,7 +61,6 @@ def docx_bytes_to_all_text(data: bytes) -> str:
 def pdf_bytes_to_text(data: bytes) -> str:
     """
     Extract text from a PDF file.
-    Additional handler not in original EBC but useful for GTM.
     """
     try:
         reader = PdfReader(BytesIO(data))

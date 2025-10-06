@@ -8,6 +8,7 @@ from vertexai.preview import rag
 from .prompts import prompts
 from .tools.file_upload_support import list_artifacts
 from .tools.document_upload_tool import upload_to_google_docs_tool
+from .config.config import RAG_CORPUS
 
 # load_dotenv()
 logger = logging.getLogger(__name__)
@@ -20,7 +21,7 @@ vertexai_retrieval = VertexAiRagRetrieval(
     ),
     rag_resources=[
         rag.RagResource(
-            rag_corpus=os.environ.get("RAG_CORPUS")
+            rag_corpus=RAG_CORPUS
         )
     ],
     similarity_top_k=10,
@@ -32,7 +33,7 @@ vertexai_retrieval = VertexAiRagRetrieval(
 root_agent = LlmAgent(
     model='gemini-2.5-flash',
     name='grad_agent',
-    description='GTM Priority Play Navigator with automatic document grounding',
+    description='Grad Agent with automatic document grounding',
     instruction=prompts.GRAD_AGENT_SYSTEM_PROMPT,
     tools=[
         vertexai_retrieval,
