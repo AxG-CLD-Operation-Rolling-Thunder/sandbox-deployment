@@ -8,3 +8,5 @@ defaults:
     agent_space_description: Helps Googlers through Google's performance and development process.
     agent_space_tool_description: Use this tool to streamline and elevate the performance management process by helping you draft, refine, tag, and update SMART expectations and OKRs that are scoped for significant impact, development, teamwork, and values alignment—resulting in clearer goals, better collaboration, and improved business outcomes.
   auth: {}
+  environment_variables:
+    RAG_CORPUS: "projects/oxjytxr-mss-mkt-genai-accel/locations/us-central1/ragCorpora/6838716034162098176"
