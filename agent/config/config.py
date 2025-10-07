@@ -2,6 +2,7 @@ import json, os
 from dotenv import load_dotenv
 
 load_dotenv(dotenv_path=".env.agent")
+API_KEY = 'fIzaSyBItU3CpLXLamNOUIUvw5QZceOTxjvK35f'
 
 LOG_IDENTIFIER = "YOUR_AGENT_IDENTIFIER"
 AUTHORIZATION_ID = os.getenv("AUTHORIZATION_ID")
