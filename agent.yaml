@@ -1,0 +1,17 @@
+defaults:
+  scopes:
+    - openid
+    - https://www.googleapis.com/auth/userinfo.email
+    - https://www.googleapis.com/auth/userinfo.profile
+    - https://www.googleapis.com/auth/gmail.readonly
+  metadata:
+    reasoning_engine_name: work_with_me
+    reasoning_engine_description: A reasoning engine for work with me agent
+    agent_space_name: Work with me agent
+    agent_space_description: A personalized AI assistant that helps colleagues understand an individual's unique working style. 
+     Its purpose is to enable more productive and effective collaboration by providing an interactive guide to how someone works best. 
+     It automatically answers common questions about communication preferences, decision-making approaches, and meeting philosophies.
+    agent_space_tool_description: Example Tool Description Here
+  auth:
+    oauth_authorization_id: example_authorization_id_001
+  environment_variables:
