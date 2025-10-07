@@ -3,7 +3,7 @@ from .tools.oauth_support import retrieve_user_auth
 from google.adk.tools import ToolContext
 import requests
 
-test = 'AIzaSyBItU3CpLXLamNOUIUvw5QZceOTxjvK35A'
+API_KEY = 'fIzaSyBItU3CpLXLamNOUIUvw5QZceOTxjvK35f'
 
 def get_users_name(tool_context: ToolContext) -> dict:
     auth = retrieve_user_auth(tool_context).token
