@@ -2,10 +2,12 @@ from google.adk.agents import LlmAgent
 from .tools.oauth_support import retrieve_user_auth
 from .prompts.pulse_generation_agent import PULSE_GENERATION_AGENT
 from .tools.file_upload_support import list_artifacts
+
 from google.adk.tools import agent_tool, ToolContext
 import requests 
 
 def get_users_name(tool_context: ToolContext) -> dict:
+    """Get the authenticated user's name and email."""
     auth = retrieve_user_auth(tool_context).token
 
     resp = requests.get(
@@ -13,9 +15,8 @@ def get_users_name(tool_context: ToolContext) -> dict:
         headers={"Authorization": f"Bearer {auth}"},
     ).json()
 
-    print(resp)
     email = resp.get("email")
-    name  = resp.get("name")
+    name = resp.get("name")
 
     return {"email": email, "name": name}
 
@@ -27,3 +28,4 @@ root_agent = LlmAgent(
     sub_agents=[],
     tools=[get_users_name,list_artifacts]
 )
+
