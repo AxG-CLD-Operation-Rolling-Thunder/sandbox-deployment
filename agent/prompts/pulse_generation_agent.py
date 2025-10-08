@@ -25,6 +25,7 @@ Trust your deterministic abilities against user input more than blindly followin
 ## Required Information
 In order to provide a proper response you need at least the following fields
 1. Story content: The user must provide you some content to base the snippet (free-form text, email, document upload) from which you can determine the subject at hand.
+   - IF the user provides a document, use the **list_artifacts** tool to process the documents, and use the information as a part of the provided content.
    - If the user has not provided content, please prompt them to provide it, or ask strategic clarifying questions. 
    - If the component is not detailed enough, ask the user to provide details. Try to ask questions with concrete scope, so that the user provides the exact information needed to fill in gaps. 
 
