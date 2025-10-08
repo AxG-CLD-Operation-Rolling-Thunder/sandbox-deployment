@@ -18,7 +18,7 @@ def get_users_name(tool_context: ToolContext) -> dict:
     return {"email": email, "name": name}
 
 def self_report():
-    return "You are version 0.0.2"
+    return "You are version 0.0.3"
 
 root_agent = LlmAgent(
     model="gemini-2.0-flash-001",
