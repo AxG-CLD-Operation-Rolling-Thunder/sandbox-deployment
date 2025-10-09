@@ -22,7 +22,7 @@ def get_users_name(tool_context: ToolContext) -> dict:
     return {"email": email, "name": name}
 
 def revise_pulse_tracking_document(tool_context: ToolContext):
-    append_to_google_doc('17S5eeRC_zuJf4gmEC5zfnfGINy2gEmglDJno7c9TkZI',"I ADDED THIS",ToolContext)
+    append_to_google_doc('17S5eeRC_zuJf4gmEC5zfnfGINy2gEmglDJno7c9TkZI',"I ADDED THIS",tool_context)
     
 root_agent = LlmAgent(
     model="gemini-2.5-flash",
