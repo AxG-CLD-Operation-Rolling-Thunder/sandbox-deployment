@@ -1,0 +1,14 @@
+[
+  {
+    "date":"2025-05-01",
+    "to":"team@example.com",
+    "subject":"Weekly update",
+    "body":"Thanks for the notes. I prefer written feedback before meetings."
+  },
+  {
+    "date":"2025-05-05",
+    "to":"client@example.com",
+    "subject":"Project decision",
+    "body":"Decision: proceed with option B by Friday; we can iterate next week."
+  }
+]
