@@ -21,8 +21,9 @@ logger = logging.getLogger(__name__)
 
 root_agent = Agent(
     model=os.getenv("GOOGLE_GENAI_MODEL", "gemini-2.5-flash"),
-    name='invoice_expense_agent',
+    name='Work with me agent',
     instruction=work_with_me_instructions.PROMPT_1,
-    tools=agent_tools
+    #tools=agent_tools
+    
 )
 
