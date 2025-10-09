@@ -8,7 +8,6 @@ from google.adk.tools import ToolContext
 from ..config.config import (LOG_IDENTIFIER, LOCAL_AUTH_CREDS_LOADED, API_SCOPES, AUTHORIZATION_ID)
 
 # Import the ADK tool decorator
-from adk.tools import tool
 from .oauth_support import retrieve_user_auth
 
 
@@ -44,7 +43,7 @@ def append_to_google_doc(document_id: str, text: str,tool_context: ToolContext) 
 
     try:
         service = build("docs", "v1", credentials=retrieve_user_auth(tool_context))
-
+        print("Here 1")
         # The request to insert text at the beginning of the document body.
         # Index 1 is the beginning of the body.
         requests = [
@@ -57,7 +56,7 @@ def append_to_google_doc(document_id: str, text: str,tool_context: ToolContext) 
                 }
             }
         ]
-
+        print("here 2")
         # Execute the request. The edit is saved automatically.
         service.documents().batchUpdate(
             documentId=document_id, body={"requests": requests}
