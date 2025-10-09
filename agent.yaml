@@ -6,12 +6,12 @@ defaults:
     - https://www.googleapis.com/auth/gmail.readonly
   metadata:
     reasoning_engine_name: work_with_me
-    reasoning_engine_description: A reasoning engine for work with me agent
+    reasoning_engine_description: A reasoning engine for work with me agent (Julia)
     agent_space_name: Work with me agent
     agent_space_description: A personalized AI assistant that helps colleagues understand an individual's unique working style. 
      Its purpose is to enable more productive and effective collaboration by providing an interactive guide to how someone works best. 
      It automatically answers common questions about communication preferences, decision-making approaches, and meeting philosophies.
-    agent_space_tool_description: Example Tool Description Here
-  auth:
-    oauth_authorization_id: example_authorization_id_001
+    agent_space_tool_description: Work With Me Analysis and Publishing Tools.
+  auth: {}
+    oauth_authorization_id: work_with_me_auth_1
   environment_variables:

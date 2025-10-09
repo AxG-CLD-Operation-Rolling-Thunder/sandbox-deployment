@@ -38,3 +38,13 @@ API_SCOPES = [
     # "https://www.googleapis.com/auth/documents.readonly",
     # "https://www.googleapis.com/auth/chat.messages.readonly",
 ]
+
+def summary():
+    """Quick check that config values loaded correctly."""
+    print("PROJECT:", os.getenv("GOOGLE_CLOUD_PROJECT"))
+    print("LOCATION:", os.getenv("GOOGLE_CLOUD_LOCATION"))
+    print("USE_VERTEX_AI:", os.getenv("GOOGLE_GENAI_USE_VERTEXAI"))
+    print("PROJECT_NUMBER:", os.getenv("GOOGLE_CLOUD_PROJECT_NUMBER"))
+    print("AUTHORIZATION_ID:", os.getenv("AUTHORIZATION_ID"))
+    print("TEMPLATE_BUCKET:", os.getenv("TEMPLATE_BUCKET"))
+
