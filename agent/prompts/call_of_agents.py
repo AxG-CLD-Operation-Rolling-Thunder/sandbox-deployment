@@ -4,11 +4,22 @@ import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from googleapiclient.discovery import build #docs
 from google.oauth2.service_account import Credentials #docs
-from brief_creator import create_agent_brief_doc, AgentBrief
-from user_intake import run_user_intake
+# # from tools.brief_creator import create_agent_brief_doc
+# from .tools.user_intake import agent_brief_tool
+# from .tools.brief_creator import create_agent_brief_doc
 
 
 
+
+# def load_ideas_from_google_sheet():
+#     scope = [
+#         "https://spreadsheets.google.com/feeds",
+#         "https://www.googleapis.com/auth/drive"
+#     ]
+#     creds = ServiceAccountCredentials.from_json_keyfile_name("sheets_service_account.json", scope)
+#     client = gspread.authorize(creds)
+#     sheet = client.open("ideas_sheet").sheet1
+#     return sheet.get_all_records()
 
 def load_ideas_from_google_sheet():
     scope = [
@@ -31,20 +42,30 @@ def load_ideas_from_google_sheet():
 #     return build('docs', 'v1', credentials=creds)
 
 def get_docs_service():
-    try:
-        scope = [
-            "https://www.googleapis.com/auth/documents",
-            "https://www.googleapis.com/auth/drive"
-        ]
-        creds = ServiceAccountCredentials.from_json_keyfile_name(
-            "docs_service_account.json", scope
-        )
-        service = build('docs', 'v1', credentials=creds)
-        print("Successfully built Google Docs service.")
-        return service
-    except Exception as e:
-        print("Error creating Google Docs service:", e)
-        return None
+    scope = [
+        "https://www.googleapis.com/auth/documents",
+        "https://www.googleapis.com/auth/drive"
+    ]
+    creds = ServiceAccountCredentials.from_json_keyfile_name(
+        "sheets_service_account.json", scope
+    )
+    return build('docs', 'v1', credentials=creds)
+
+# def get_docs_service():
+#     try:
+#         scope = [
+#             "https://www.googleapis.com/auth/documents",
+#             "https://www.googleapis.com/auth/drive"
+#         ]
+#         creds = ServiceAccountCredentials.from_json_keyfile_name(
+#             "docs_service_account.json", scope
+#         )
+#         service = build('docs', 'v1', credentials=creds)
+#         print("Successfully built Google Docs service.")
+#         return service
+#     except Exception as e:
+#         print("Error creating Google Docs service:", e)
+#         return None
 
 
 
@@ -55,9 +76,14 @@ def format_ideas_as_python_list(ideas_raw):
     ]) + "\n]"
 
 # Load and format ideas
-ideas_raw = load_ideas_from_google_sheet()
-ideas = format_ideas_as_python_list(ideas_raw)
+# ideas_raw = load_ideas_from_google_sheet()
+# ideas = format_ideas_as_python_list(ideas_raw)
 
+ideas_raw ="paper maker agent"
+ideas = "paper maker agent"
+
+
+formattedBrief = ""
 
 prompting = f""" 
 
@@ -65,6 +91,13 @@ prompting = f"""
 ## Purpose  
 You're an intelligent assistant designed to guide users through the process of submitting new AI agent ideas. Your job is to make sure every submission is complete, non-duplicative, and actionable. You act as a bridge between idea originators and the development team—reducing ambiguity, minimizing duplicate work, and accelerating the innovation pipeline.
 
+
+## Available Tools
+
+You have access to specialized tools:
+
+### Core Planning Tools:
+1. **brief_creator.py** - Format the final plan according to template 
 ---
 
 ## Business Problem  
@@ -128,7 +161,16 @@ When the user says any of the following:
 - “Export this agent”
 
 You must respond with a formatted brief they can paste into a Google document and include all sections even if content is missing just have a note that the content should be added.
+When calling the tool 'create_agents_brief_doc', the 'formattedBrief' argument must be of type string which contains the generated brief.
 
+For example, 
+'''python 
+        formattedBrief = stay_uncreated_brief
+'''
+
+where stay_created_brief is the string that you generate for the entire formatted brief.
+
+After saving the brief, insert the contents of formattedBrief into a new Google Doc titled "Agent Brief - [Agent Name]". Return the link to the document so the user can access it. and also return {formattedBrief} with a message saying this is the stored value
 
 ---
 

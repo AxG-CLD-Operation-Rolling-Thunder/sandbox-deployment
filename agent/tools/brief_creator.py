@@ -1,32 +1,34 @@
-# from oauth2client.service_account import ServiceAccountCredentials  # For service account OAuth credentials
-# from googleapiclient.discovery import build  # To build the Google Docs API client
+from oauth2client.service_account import ServiceAccountCredentials  # For service account OAuth credentials
+from googleapiclient.discovery import build  # To build the Google Docs API client
+# from prompts.call_of_agents import formattedBrief
 
-# def create_agent_brief_doc(agent_name, brief_content):
-#     docs_service = get_docs_service()
+def create_agents_brief_doc(formattedBrief):
+    doc_id = "123" #
+    # docs_service = get_docs_service()
 
-#     # Create new doc
-#     doc = docs_service.documents().create(body={
-#         'title': f"Agent Brief - {agent_name}"
-#     }).execute()
-#     doc_id = doc.get('documentId')
+    # # Create new doc
+    # doc = docs_service.documents().create(body={
+    #     'title': f"Agent Brief - {agent_name}"
+    # }).execute()
+    # doc_id = doc.get('documentId')
 
-#     # Insert text into the new doc
-#     requests = [
-#         {
-#             'insertText': {
-#                 'location': {'index': 1},
-#                 'text': brief_content
-#             }
-#         }
-#     ]
+    # # Insert text into the new doc
+    # requests = [
+    #     {
+    #         'insertText': {
+    #             'location': {'index': 1},
+    #             'text': brief_content
+    #         }
+    #     }
+    # ]
 
-#     docs_service.documents().batchUpdate(
-#         documentId=doc_id,
-#         body={'requests': requests}
-#     ).execute()
+    # docs_service.documents().batchUpdate(
+    #     documentId=doc_id,
+    #     body={'requests': requests}
+    # ).execute()
 
-#     # Return the accessible link
-#     return f"https://docs.google.com/document/d/{doc_id}/edit"
+    # # Return the accessible link
+    return f"https://docs.google.com/document/d/{doc_id}/edit"
 
 
 
