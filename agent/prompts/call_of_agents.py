@@ -41,15 +41,15 @@ def load_ideas_from_google_sheet():
 #     )
 #     return build('docs', 'v1', credentials=creds)
 
-def get_docs_service():
-    scope = [
-        "https://www.googleapis.com/auth/documents",
-        "https://www.googleapis.com/auth/drive"
-    ]
-    creds = ServiceAccountCredentials.from_json_keyfile_name(
-        "sheets_service_account.json", scope
-    )
-    return build('docs', 'v1', credentials=creds)
+# def get_docs_service():
+#     scope = [
+#         "https://www.googleapis.com/auth/documents",
+#         "https://www.googleapis.com/auth/drive"
+#     ]
+#     creds = ServiceAccountCredentials.from_json_keyfile_name(
+#         "sheets_service_account.json", scope
+#     )
+#     return build('docs', 'v1', credentials=creds)
 
 # def get_docs_service():
 #     try:
@@ -76,11 +76,11 @@ def format_ideas_as_python_list(ideas_raw):
     ]) + "\n]"
 
 # Load and format ideas
-# ideas_raw = load_ideas_from_google_sheet()
-# ideas = format_ideas_as_python_list(ideas_raw)
+ideas_raw = load_ideas_from_google_sheet()
+ideas = format_ideas_as_python_list(ideas_raw)
 
-ideas_raw ="paper maker agent"
-ideas = "paper maker agent"
+# ideas_raw ="paper maker agent"
+# ideas = "paper maker agent"
 
 
 formattedBrief = ""
@@ -161,16 +161,9 @@ When the user says any of the following:
 - “Export this agent”
 
 You must respond with a formatted brief they can paste into a Google document and include all sections even if content is missing just have a note that the content should be added.
-When calling the tool 'create_agents_brief_doc', the 'formattedBrief' argument must be of type string which contains the generated brief.
 
-For example, 
-'''python 
-        formattedBrief = stay_uncreated_brief
-'''
 
-where stay_created_brief is the string that you generate for the entire formatted brief.
 
-After saving the brief, insert the contents of formattedBrief into a new Google Doc titled "Agent Brief - [Agent Name]". Return the link to the document so the user can access it. and also return {formattedBrief} with a message saying this is the stored value
 
 ---
 
