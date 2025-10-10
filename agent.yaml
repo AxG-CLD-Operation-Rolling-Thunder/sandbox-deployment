@@ -6,6 +6,7 @@ defaults:
     - https://www.googleapis.com/auth/userinfo.profile
     - https://www.googleapis.com/auth/drive.readonly
     - https://www.googleapis.com/auth/drive.file
+    - https://www.googleapis.com/auth/documents
   metadata:
     reasoning_engine_name: cloud_marketing_pulse_assistant
     reasoning_engine_description: A reasoning engine for writing Pulse Newsletters
