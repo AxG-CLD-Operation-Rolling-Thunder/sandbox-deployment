@@ -14,5 +14,5 @@ defaults:
     agent_space_description: Helps Googlers write snippets for Pulse Newsletter
     agent_space_tool_description: None
   auth: 
-    oauth_authorization_id: pulse_agent_auth_2
+    oauth_authorization_id: pulse_agent_auth_3
   environment_variables:
