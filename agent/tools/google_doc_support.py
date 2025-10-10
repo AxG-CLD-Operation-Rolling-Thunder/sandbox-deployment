@@ -22,7 +22,7 @@ from .oauth_support import retrieve_user_auth
 def append_to_google_doc(document_id: str, text: str,tool_context: ToolContext) -> str:
     logger.info("Started Document Upload Attempt")
     try:
-        creds = retrieve_user_auth(tool_context).token
+        creds = retrieve_user_auth(tool_context)
         logger.info(creds)
         service = build("docs", "v1", credentials=creds)
         logger.info('Got Through Service')
