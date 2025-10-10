@@ -16,4 +16,3 @@ deployments
 sheets_service_account.json
 docs_service_account.json
 *.json  
-data.py
